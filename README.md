@@ -1,6 +1,8 @@
 Lousson: Record
 ===============
 
+![Build Status](https://travis-ci.org/lousson/record.png?branch=master)
+
 The `Lousson_Record` package eases the creation of portable data records that
 are serializable in various formats.
 
@@ -42,7 +44,7 @@ The complete sourcecode and version history is avialabe at GitHub.
 One may either visit http://github.com/lousson/record or clone
 the source tree directly:
 
-	git clone git@github.com:lousson/record.git
+	git clone https://github.com/lousson/record.git
 
 GitHub is also used to track issues like bugs and feature-requests:
 
