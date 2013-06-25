@@ -102,7 +102,7 @@ class BuiltinRecordHandlerJSON
     {
         $setup = ini_set("track_errors", true);
         $php_errormsg = "UNKNOWN ERROR";
-        $data = json_decode($sequence, true, 512, JSON_BIGINT_AS_STRING);
+        $data = json_decode($sequence, true, 512);
         $error = $php_errormsg;
         ini_set("track_errors", $setup);
 
