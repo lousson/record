@@ -55,6 +55,48 @@ use PHPUnit_Framework_TestCase;
 abstract class AbstractRecordTest extends PHPUnit_Framework_TestCase
 {
     /**
+     *  The fully qualified name of the record parser interface
+     *
+     *  @var string
+     */
+    const I_PARSER = "Lousson\\Record\\AnyRecordParser";
+
+    /**
+     *  The fully qualified name of the record builder interface
+     *
+     *  @var string
+     */
+    const I_BUILDER = "Lousson\\Record\\AnyRecordBuilder";
+
+    /**
+     *  The fully qualified name of the record handler interface
+     *
+     *  @var string
+     */
+    const I_HANDLER = "Lousson\\Record\\AnyRecordHandler";
+
+    /**
+     *  The fully qualified name of the record manager interface
+     *
+     *  @var string
+     */
+    const I_MANAGER = "Lousson\\Record\\AnyRecordManager";
+
+    /**
+     *  The fully qualified name of the record factory interface
+     *
+     *  @var string
+     */
+    const I_FACTORY = "Lousson\\Record\\AnyRecordFactory";
+
+    /**
+     *  The fully qualified name of the record exception interface
+     *
+     *  @var string
+     */
+    const I_EXCEPTION = "Lousson\\Record\\AnyRecordException";
+
+    /**
      *  Provide valid record data parameters
      *
      *  The provideValidData() method returns an array of multiple items,
