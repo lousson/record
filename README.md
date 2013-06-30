@@ -1,7 +1,8 @@
 Lousson: Record
 ===============
 
-![Build Status](https://travis-ci.org/lousson/record.png?branch=master)
+[![Build Status](https://travis-ci.org/lousson/record.png?branch=master,0.4)]
+(https://travis-ci.org/lousson/record)
 
 The `Lousson_Record` package eases the creation of portable data records that
 are serializable in various formats.
