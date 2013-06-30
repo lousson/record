@@ -407,7 +407,7 @@ abstract class AbstractRecordHandlerTest extends AbstractRecordTest
         }
 
         $this->assertInstanceOf(
-            "Lousson\\Record\\AnyRecordBuilder", $builder,
+            self::I_BUILDER, $builder,
             "The $testClass::getRecordBuilder() method must return an ".
             "instance of the AnyRecordBuilder interface or NULL"
         );
@@ -442,7 +442,7 @@ abstract class AbstractRecordHandlerTest extends AbstractRecordTest
         }
 
         $this->assertInstanceOf(
-            "Lousson\\Record\\AnyRecordParser", $parser,
+            self::I_PARSER, $parser,
             "The $testClass::getRecordParser() method must return an ".
             "instance of the AnyRecordParser interface or NULL"
         );

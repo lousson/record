@@ -20,6 +20,7 @@
               <file>src/php/Lousson/Record/AnyRecordException.php</file>
               <file>src/php/Lousson/Record/AnyRecordFactory.php</file>
               <file>src/php/Lousson/Record/AnyRecordHandler.php</file>
+              <file>src/php/Lousson/Record/AnyRecordManager.php</file>
               <file>src/php/Lousson/Record/AnyRecordParser.php</file>
            </exclude> 
         </whitelist>

@@ -254,8 +254,7 @@ abstract class AbstractRecordFactoryTest extends AbstractRecordTest
         );
 
         if (!$factoryHasParser) {
-            $exceptionInterface = "Lousson\\Record\\AnyRecordException";
-            $this->setExpectedException($exceptionInterface);
+            $this->setExpectedException(self::I_EXCEPTION);
         }
 
         $this->fetchRecordParser($factory, $type);
@@ -296,8 +295,7 @@ abstract class AbstractRecordFactoryTest extends AbstractRecordTest
         );
 
         if (!$factoryHasHandler) {
-            $exceptionInterface = "Lousson\\Record\\AnyRecordException";
-            $this->setExpectedException($exceptionInterface);
+            $this->setExpectedException(self::I_EXCEPTION);
         }
 
         $this->fetchRecordHandler($factory, $type);
@@ -321,7 +319,7 @@ abstract class AbstractRecordFactoryTest extends AbstractRecordTest
     {
         $factory = $this->getRecordFactory();
         $this->assertInstanceOf(
-            "Lousson\\Record\\AnyRecordFactory", $factory, sprintf(
+            self::I_FACTORY, $factory, sprintf(
             "The %s::getRecordFactory() method must return an intance of ".
             "the AnyRecordFactory interface", get_class($this)
         ));
@@ -443,7 +441,7 @@ abstract class AbstractRecordFactoryTest extends AbstractRecordTest
         $builder = $factory->getRecordBuilder($type);
         $factoryClass = get_class($factory);
         $this->assertInstanceOf(
-            "Lousson\\Record\\AnyRecordBuilder", $builder,
+            self::I_BUILDER, $builder,
             "The $factoryClass::getRecordBuilder() method must return an ".
             "instance of the AnyRecordBuilder interface"
         );
@@ -478,7 +476,7 @@ abstract class AbstractRecordFactoryTest extends AbstractRecordTest
         $parser = $factory->getRecordParser($type);
         $factoryClass = get_class($factory);
         $this->assertInstanceOf(
-            "Lousson\\Record\\AnyRecordParser", $parser,
+            self::I_PARSER, $parser,
             "The $factoryClass::getRecordParser() method must return an ".
             "instance of the AnyRecordParser interface"
         );
@@ -513,7 +511,7 @@ abstract class AbstractRecordFactoryTest extends AbstractRecordTest
         $handler = $factory->getRecordHandler($type);
         $factoryClass = get_class($factory);
         $this->assertInstanceOf(
-            "Lousson\\Record\\AnyRecordHandler", $handler,
+            self::I_HANDLER, $handler,
             "The $factoryClass::getRecordHandler() method must return an ".
             "instance of the AnyRecordHandler interface"
         );
