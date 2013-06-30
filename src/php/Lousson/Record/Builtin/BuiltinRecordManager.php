@@ -99,14 +99,14 @@ class BuiltinRecordManager implements AnyRecordManager
     /**
      *  Load a data record
      *
-     *  The loadRecord() method attempts to load a record from the resource
-     *  identified by the given $url, deserialize it according to the given
-     *  $type, and return an array representing the record's data.
+     *  The loadRecord() method attempts to load a record from the given
+     *  $location, deserialize it according to the given $type, and return
+     *  an array representing the record's data.
      *
      *  If the optional $type parameter is omitted, the implementation may
      *  attempt to apply some detection mechanism or a common default.
      *
-     *  @param  string              $url            The record resource
+     *  @param  string              $location       The record location
      *  @param  string              $type           The record media type
      *
      *  @return array
@@ -121,9 +121,9 @@ class BuiltinRecordManager implements AnyRecordManager
      *  @throws \InvalidArgumentException
      *          Raised in case a parameter is considered invalid
      */
-    public function loadRecord($url, $type = null)
+    public function loadRecord($location, $type = null)
     {
-        $content = $this->loadContent($url, $type);
+        $content = $this->loadContent($location, $type);
         $parser = $this->recordFactory->getRecordParser($type);
         $record = $parser->parseRecord($content);
 
@@ -135,12 +135,12 @@ class BuiltinRecordManager implements AnyRecordManager
      *
      *  The saveRecord() method attempts to serialize the record $data to
      *  be a representation of the given $type, before storing it at the
-     *  location identified by the given $url.
+     *  given $location.
      *
      *  If the optional $type parameter is omitted, the implementation may
      *  attempt to apply some detection mechanism or a common default.
      *
-     *  @param  string              $url            The record resource
+     *  @param  string              $location       The record location
      *  @param  array               $data           The record data
      *  @param  string              $type           The record media type
      *
@@ -153,7 +153,7 @@ class BuiltinRecordManager implements AnyRecordManager
      *  @throws \InvalidArgumentException
      *          Raised in case a parameter is considered invalid
      */
-    public function saveRecord($url, array $data, $type = null)
+    public function saveRecord($location, array $data, $type = null)
     {
         if (null === $type) {
             $type = $this->defaultType;
@@ -162,31 +162,31 @@ class BuiltinRecordManager implements AnyRecordManager
         $builder = $this->recordFactory->getRecordBuilder($type);
         $content = $builder->buildRecord($data);
 
-        $this->saveContent($url, $content);
+        $this->saveContent($location, $content);
     }
 
     /**
      *  Load content byte sequences
      *
-     *  The loadContent() method is used internally to load the content
-     *  at the given $url, returning it as a byte sequence or string. If
-     *  the $type reference is NULL, an attempt is made to determine the
+     *  The loadContent() method is used internally to load the content at
+     *  the given $location, returning it as a byte sequence or string.
+     *  If the $type reference is NULL, an attempt is made to determine the
      *  content type - based on PHP's builtin mechanisms.
      *
-     *  @param  string              $url            The content location
+     *  @param  string              $location       The content location
      *  @param  string              $type           The content type
      *
      *  @return string
      *          A byte sequence is returned on success
      *
      *  @throws \Lousson\Record\Error\InvalidRecordError
-     *          Raised in case the $url's content could not get loaded
+     *          Raised in case the $location's content could not get loaded
      */
-    private function loadContent($url, &$type)
+    private function loadContent($location, &$type)
     {
         if (null === $type) {
             $info = finfo_open(FILEINFO_MIME_TYPE);
-            $type = @finfo_file($info, (string) $url)?: null;
+            $type = @finfo_file($info, (string) $location)?: null;
             finfo_close($info);
         }
 
@@ -196,7 +196,7 @@ class BuiltinRecordManager implements AnyRecordManager
 
         $setup = ini_set("track_errors", true);
         $php_errormsg = "UKNOWN ERROR";
-        $content = @file_get_contents($url);
+        $content = @file_get_contents($location);
         $error = $php_errormsg;
 
         ini_set("track_errors", $setup);
@@ -213,19 +213,19 @@ class BuiltinRecordManager implements AnyRecordManager
      *  Save content byte sequences
      *
      *  The saveContent() method is used internally to save the $content
-     *  provided at the location identified by the given $url.
+     *  provided at the given $location.
      *
-     *  @param  string              $url            The content location
+     *  @param  string              $location       The content location
      *  @param  string              $content        The content data
      *
      *  @throws \Lousson\Record\Error\InvalidRecordError
      *          Raised in case the $content could not get saved
      */
-    private function saveContent($url, $content)
+    private function saveContent($location, $content)
     {
         $setup = ini_set("track_errors", true);
         $php_errormsg = "UKNOWN ERROR";
-        $status = @file_put_contents($url, $content);
+        $status = @file_put_contents($location, $content);
         $error = $php_errormsg;
 
         ini_set("track_errors", $setup);

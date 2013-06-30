@@ -56,15 +56,15 @@ interface AnyRecordManager
     /**
      *  Load a data record
      *
-     *  The loadRecord() method attempts to load a record from the resource
-     *  identified by the given $uri, deserialize it according to the given
-     *  $type, and return an array representing the record's data.
+     *  The loadRecord() method attempts to load a record from the given
+     *  $location, deserialize it according to the given $type, and return
+     *  an array representing the record's data.
      *
      *  If the optional $type parameter is omitted, the implementation may
      *  attempt to apply some detection mechanism or a common default.
      *
-     *  @param  string              $uri        The record resource
-     *  @param  string              $type       The record media type
+     *  @param  string              $location       The record location
+     *  @param  string              $type           The record media type
      *
      *  @return array
      *          An array of record data is returned on success
@@ -78,21 +78,21 @@ interface AnyRecordManager
      *  @throws \InvalidArgumentException
      *          Raised in case a parameter is considered invalid
      */
-    public function loadRecord($uri, $type = null);
+    public function loadRecord($location, $type = null);
 
     /**
      *  Save a data record
      *
      *  The saveRecord() method attempts to serialize the record $data to
      *  be a representation of the given $type, before storing it at the
-     *  location identified by the given $uri.
+     *  given $location.
      *
      *  If the optional $type parameter is omitted, the implementation may
      *  attempt to apply some detection mechanism or a common default.
      *
-     *  @param  string              $uri        The record resource
-     *  @param  array               $data       The record data
-     *  @param  string              $type       The record media type
+     *  @param  string              $location       The record location
+     *  @param  array               $data           The record data
+     *  @param  string              $type           The record media type
      *
      *  @throws \Lousson\Record\AnyRecordException
      *          Any exception raised implements this interface
@@ -103,6 +103,6 @@ interface AnyRecordManager
      *  @throws \InvalidArgumentException
      *          Raised in case a parameter is considered invalid
      */
-    public function saveRecord($uri, array $data, $type = null);
+    public function saveRecord($location, array $data, $type = null);
 }
 
