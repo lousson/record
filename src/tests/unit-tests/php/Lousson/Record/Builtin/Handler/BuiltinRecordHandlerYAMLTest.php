@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\BuiltinRecordFactoryTest class definition
+ *  Lousson\Record\Builtin\Builder\BuiltinRecordHandlerYAMLTest definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,84 +40,92 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Builtin;
+namespace Lousson\Record\Builtin\Builder;
 
 /** Dependencies: */
-use Lousson\Record\AbstractRecordFactoryTest;
-use Lousson\Record\Builtin\BuiltinRecordFactory;
+use Lousson\Record\AbstractRecordHandlerTest;
+use Lousson\Record\Builtin\Handler\BuiltinRecordHandlerYAML;
+use ReflectionException;
+use ReflectionMethod;
 
 /**
- *  A test case for the builtin record factory
+ *  A test case for the builtin YAML record builder
  *
- *  @since      lousson/Lousson_Record-0.1.0
+ *  @since      lousson/Lousson_Record-0.2.0
  *  @package    org.lousson.record
  *  @link       http://www.phpunit.de/manual/current/en/
  */
-class BuiltinRecordFactoryTest extends AbstractRecordFactoryTest
+class BuiltinRecordHandlerYAMLTest
+    extends AbstractRecordHandlerTest
 {
     /**
-     *  Obtain the record factory to test
+     *  Obtain the record builder to test
      *
-     *  The getRecordFactory() method returns the record factory instance
-     *  that is used in the tests.
+     *  The getRecordBuilder() method returns the record builder instance
+     *  that is used in the tests or NULL, in case the test does not have
+     *  an associated builder.
      *
-     *  @return \Lousson\Record\AnyRecordFactory
-     *          A record factory instance is returned on success
+     *  @return \Lousson\Record\AnyRecordBuilder
+     *          A record builder instance is returned on success
      */
-    public function getRecordFactory()
+    public function getRecordBuilder()
     {
-        $factory = new BuiltinRecordFactory();
-        return $factory;
+        $builder = new BuiltinRecordHandlerYAML();
+        return $builder;
     }
 
     /**
-     *  Provide supported media type parameters
+     *  Obtain the record parser to test
      *
-     *  The provideBuilderMediaTypes() method returns an array of multiple
-     *  items, each of whose is an array with one string item representing
-     *  a media type the factory is supposed to provide a builder for.
+     *  The getRecordParser() method returns the record parser instance
+     *  that is used in the tests or NULL, in case the test does not have
+     *  an associated parser.
      *
-     *  @return array
-     *          A list of media type parameters is returned on success
+     *  @return \Lousson\Record\AnyRecordBuilder
+     *          A record builder instance is returned on success
      */
-    public function provideBuilderMediaTypes()
+    public function getRecordParser()
     {
-        return array(
-            array("application/json"),
-            array("application/vnd.php.serialized"),
-            array("text/json"),
-            array("text/x-json"),
-            array("text/yaml"),
-            array("text/x-yaml"),
-            array("application/yaml"),
-            array("application/x-yaml"),
-        );
+        $parser = new BuiltinRecordHandlerYAML();
+        return $parser;
     }
 
     /**
-     *  Provide supported media type parameters
+     *  Provide valid parseRecord() parameters
      *
-     *  The provideParserMediaTypes() method returns an array of multiple
-     *  items, each of whose is an array with one string item representing
-     *  a media type the factory is supposed to provide a parser for.
+     *  The provideValidRecordBytes() method returns an array of multiple
+     *  items, each of whose is an array with one item; a sequence of bytes
+     *  representing valid record data.
      *
      *  @return array
-     *          A list of media type parameters is returned on success
+     *          A list of parseRecord() parameters is returned on success
      */
-    public function provideParserMediaTypes()
+    public function provideValidRecordBytes()
     {
-        return array(
-            array("application/json"),
-            array("application/textedit"),
-            array("application/vnd.php.serialized"),
-            array("text/json"),
-            array("text/x-json"),
-            array("zz-application/zz-winassoc-ini"),
-            array("text/yaml"),
-            array("text/x-yaml"),
-            array("application/yaml"),
-            array("application/x-yaml"),
-        );
+        $data[][] = '{"foo":"bar","baz":[0,1,2,3,4,5]}';
+        $data[][] = '{"foo":{"bar":"baz"}}';
+        $data[][] = '{"foobar":null}';
+
+        return $data;
+    }
+
+    /**
+     *  Provide invalid parseRecord() parameters
+     *
+     *  The provideInvalidRecordBytes() method returns an array of multiple
+     *  items, each of whose is an array with one item; a sequence of bytes
+     *  representing invalid record data.
+     *
+     *  @return array
+     *          A list of parseRecord() parameters is returned on success
+     */
+    public function provideInvalidRecordBytes()
+    {
+        $data[][] = 'foobar';
+        $data[][] = '';
+        $data[][] = '{"foo":"bar","0 1 2":"baz"}';
+
+        return $data;
     }
 }
 
