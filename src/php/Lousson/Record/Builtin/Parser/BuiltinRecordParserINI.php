@@ -75,7 +75,7 @@ class BuiltinRecordParserINI
     {
         $setup = ini_set("track_errors", true);
         $php_errormsg = "UNKNOWN ERROR";
-        $data = parse_ini_string($sequence, true, INI_SCANNER_RAW);
+        $data = parse_ini_string($sequence, false, INI_SCANNER_RAW);
         $error = $php_errormsg;
         ini_set("track_errors", $setup);
         $this->checkRecordData($data, $error);
