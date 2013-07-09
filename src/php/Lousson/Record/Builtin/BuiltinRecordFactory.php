@@ -234,6 +234,14 @@ class BuiltinRecordFactory implements AnyRecordFactory
             "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerJSON",
         "text/x-json" =>
             "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerJSON",
+        "text/yaml" =>
+            "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerYAML",
+        "text/x-yaml" =>
+            "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerYAML",
+        "application/yaml" =>
+            "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerYAML",
+        "application/x-yaml" =>
+            "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerYAML",
     );
 }
 

@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\BuiltinRecordFactoryTest class definition
+ *  Lousson\Record\Builtin\Handler\BuiltinRecordHandlerYAML class definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,84 +40,82 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Builtin;
+namespace Lousson\Record\Builtin\Handler;
 
 /** Dependencies: */
-use Lousson\Record\AbstractRecordFactoryTest;
-use Lousson\Record\Builtin\BuiltinRecordFactory;
+use Lousson\Record\AnyRecordHandler;
+use Lousson\Record\Builtin\BuiltinRecordHandler;
+use Lousson\Record\Error\InvalidRecordError;
+use Lousson\Record\Error\RuntimeRecordError;
+use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Dumper;
 
 /**
- *  A test case for the builtin record factory
+ *  An INI record parser
  *
  *  @since      lousson/Lousson_Record-0.1.0
  *  @package    org.lousson.record
- *  @link       http://www.phpunit.de/manual/current/en/
  */
-class BuiltinRecordFactoryTest extends AbstractRecordFactoryTest
+class BuiltinRecordHandlerYAML
+    extends BuiltinRecordHandler
+    implements AnyRecordHandler
 {
     /**
-     *  Obtain the record factory to test
+     *  Build record content
      *
-     *  The getRecordFactory() method returns the record factory instance
-     *  that is used in the tests.
+     *  The buildRecord() method returns a byte sequence representing the
+     *  given $record in its serialized form.
      *
-     *  @return \Lousson\Record\AnyRecordFactory
-     *          A record factory instance is returned on success
+     *  @param  array               $data       The record's data
+     *
+     *  @return string
+     *          The serialized record is returned on success
+     *
+     *  @throws \Lousson\Record\AnyRecordException
+     *          Raised in case of malformed $data or internal errors
      */
-    public function getRecordFactory()
-    {
-        $factory = new BuiltinRecordFactory();
-        return $factory;
+    public function buildRecord(array $data)
+    {	
+    	try {
+    		$record = $this->normalizeInputData($data);
+    		$dumper = new Dumper();
+    		$sequence = $dumper->dump($record);
+    		return $sequence;
+    	} 
+    	catch (\Exception $error) {
+            $message = "Failed to build YAML record: ".$error->getMessage();
+            $code = RuntimeRecordError::E_INTERNAL_ERROR;
+            throw new RuntimeRecordError($message, $code);
+    	}
     }
-
+    
     /**
-     *  Provide supported media type parameters
+     *  Parse record content
      *
-     *  The provideBuilderMediaTypes() method returns an array of multiple
-     *  items, each of whose is an array with one string item representing
-     *  a media type the factory is supposed to provide a builder for.
+     *  The parseRecord() method returns an array representing the given
+     *  byte $sequence in its unserialized form.
+     *
+     *  @param  string              $sequence   The record's byte sequence
      *
      *  @return array
-     *          A list of media type parameters is returned on success
-     */
-    public function provideBuilderMediaTypes()
-    {
-        return array(
-            array("application/json"),
-            array("application/vnd.php.serialized"),
-            array("text/json"),
-            array("text/x-json"),
-            array("text/yaml"),
-            array("text/x-yaml"),
-            array("application/yaml"),
-            array("application/x-yaml"),
-        );
-    }
-
-    /**
-     *  Provide supported media type parameters
+     *          The unserialized record is returned on success
      *
-     *  The provideParserMediaTypes() method returns an array of multiple
-     *  items, each of whose is an array with one string item representing
-     *  a media type the factory is supposed to provide a parser for.
-     *
-     *  @return array
-     *          A list of media type parameters is returned on success
+     *  @throws \Lousson\Record\AnyRecordException
+     *          Indicates a malformed $sequence or an internal error
      */
-    public function provideParserMediaTypes()
+    final public function parseRecord($sequence)
     {
-        return array(
-            array("application/json"),
-            array("application/textedit"),
-            array("application/vnd.php.serialized"),
-            array("text/json"),
-            array("text/x-json"),
-            array("zz-application/zz-winassoc-ini"),
-            array("text/yaml"),
-            array("text/x-yaml"),
-            array("application/yaml"),
-            array("application/x-yaml"),
-        );
+    	try {
+    		$parser = new Parser();
+    		$data = $parser->parse($sequence);
+    		$record = $this->normalizeOutputData($data);
+    		return $record;
+    	} 
+    	catch (\Exception $error) {
+    		$message = "Could not parse YAML record: ".$error->getMessage();
+    		$code = InvalidRecordError::E_INTERNAL_ERROR;
+    		throw new InvalidRecordError($message, $code);
+    	}
     }
 }
 
