@@ -32,34 +32,55 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\Handler\BuiltinRecordHandlerYAML class definition
+ *  Lousson\Record\Builtin\Handler\BuiltinRecordHandlerYAML definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
- *  @author     Mathias J. Hennig <mhennig at quirkies.org>
+ *  @author     Attila G. Levai <sgnl19 at gmail.com>
  *  @filesource
  */
 namespace Lousson\Record\Builtin\Handler;
 
-/** Dependencies: */
+/** Interfaces: */
 use Lousson\Record\AnyRecordHandler;
+
+/** Dependencies: */
 use Lousson\Record\Builtin\BuiltinRecordHandler;
+use Symfony\Component\Yaml;
+
+/** Exceptions: */
 use Lousson\Record\Error\InvalidRecordError;
 use Lousson\Record\Error\RuntimeRecordError;
-use Symfony\Component\Yaml\Parser;
-use Symfony\Component\Yaml\Dumper;
 
 /**
- *  An INI record parser
+ *  A YAML record handler
  *
- *  @since      lousson/Lousson_Record-0.1.0
+ *  @since      lousson/Lousson_Record-0.6.0
  *  @package    org.lousson.record
  */
 class BuiltinRecordHandlerYAML
     extends BuiltinRecordHandler
     implements AnyRecordHandler
 {
+    /**
+     *  Create a handler instance
+     *
+     *  The constructor allows the caller to provide YAML parser and
+     *  dumper instances to be used instead of those that would otherwise
+     *  be created at runtime.
+     *
+     *  @param  Yaml\Parser         $parser         The YAML parser
+     *  @param  Yaml\Dumper         $dumper         The YAML dumper
+     */
+    public function __construct(
+        Yaml\Parser $parser = null,
+        Yaml\Dumper $dumper = null
+    ) {
+        $this->parser = $parser;
+        $this->dumper = $dumper;
+    }
+
     /**
      *  Build record content
      *
@@ -75,20 +96,26 @@ class BuiltinRecordHandlerYAML
      *          Raised in case of malformed $data or internal errors
      */
     public function buildRecord(array $data)
-    {	
-    	try {
-    		$record = $this->normalizeInputData($data);
-    		$dumper = new Dumper();
-    		$sequence = $dumper->dump($record);
-    		return $sequence;
-    	} 
-    	catch (\Exception $error) {
-            $message = "Failed to build YAML record: ".$error->getMessage();
-            $code = RuntimeRecordError::E_INTERNAL_ERROR;
-            throw new RuntimeRecordError($message, $code);
-    	}
+    {
+        $record = $this->normalizeInputData($data);
+
+        if (!isset($this->dumper)) {
+            $this->dumper = new Yaml\Dumper();
+        }
+
+        try {
+            $sequence = $this->dumper->dump($record);
+        }
+        catch (\Exception $error) {
+            $class = get_class($error);
+            $message = "Failed to build YAML record: Caught $class";
+            $code = RuntimeRecordError::E_UNKNOWN;
+            throw new RuntimeRecordError($message, $code, $error);
+        }
+
+        return $sequence;
     }
-    
+
     /**
      *  Parse record content
      *
@@ -103,19 +130,38 @@ class BuiltinRecordHandlerYAML
      *  @throws \Lousson\Record\AnyRecordException
      *          Indicates a malformed $sequence or an internal error
      */
-    final public function parseRecord($sequence)
+    public function parseRecord($sequence)
     {
-    	try {
-    		$parser = new Parser();
-    		$data = $parser->parse($sequence);
-    		$record = $this->normalizeOutputData($data);
-    		return $record;
-    	} 
-    	catch (\Exception $error) {
-    		$message = "Could not parse YAML record: ".$error->getMessage();
-    		$code = InvalidRecordError::E_INTERNAL_ERROR;
-    		throw new InvalidRecordError($message, $code);
-    	}
+        if (!isset($this->parser)) {
+            $this->parser = new Yaml\Parser();
+        }
+
+        try {
+            $data = $this->parser->parse($sequence);
+        }
+        catch (\Exception $error) {
+            $class = get_class($error);
+            $message = "Could not parse YAML record: Caught $class";
+            $code = InvalidRecordError::E_UNKNOWN;
+            throw new InvalidRecordError($message, $code, $error);
+        }
+
+        $record = $this->normalizeOutputData($data);
+        return $record;
     }
+
+    /**
+     *  The YAML parser instance in use
+     *
+     *  @var \Symfony\Component\Yaml\Parser
+     */
+    private $parser;
+
+    /**
+     *  The YAML dumper instance in use
+     *
+     *  @var \Symfony\Component\Yaml\Dumper
+     */
+    private $dumper;
 }
 
