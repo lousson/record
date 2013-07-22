@@ -94,10 +94,10 @@ final class BuiltinRecordManagerTest extends AbstractRecordManagerTest
      *  saveRecord() method. It verifies that any attempt to save a record
      *  at an invalid location results in an exception.
      *
-     *  @expectedException  Lousson\Record\Error\InvalidRecordError
+     *  @expectedException  Lousson\Record\Error\RecordArgumentError
      *  @test
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the test is successful
      *
      *  @throws \Exception
@@ -116,10 +116,10 @@ final class BuiltinRecordManagerTest extends AbstractRecordManagerTest
      *  loadRecord() method. It verifies that any attempt to load a record
      *  from an invalid location results in an exception.
      *
-     *  @expectedException  Lousson\Record\Error\InvalidRecordError
+     *  @expectedException  Lousson\Record\Error\RecordArgumentError
      *  @test
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the test is successful
      *
      *  @throws \Exception

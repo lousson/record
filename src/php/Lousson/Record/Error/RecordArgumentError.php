@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Error\InvalidRecordError class definition
+ *  Lousson\Record\Error\RecordArgumentError class definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
@@ -49,14 +49,14 @@ use Lousson\Error\InvalidArgumentError;
 /**
  *  An exception type for invalid records
  *
- *  The InvalidRecordError is an exception type raised by the builtin and
+ *  The RecordArgumentError is an exception type raised by the builtin and
  *  generic implementations of the record interfaces in case of any errors
  *  that are caused by invalid records or arguments passed by the caller.
  *
  *  @since      lousson/Lousson_Record-0.1.0
  *  @package    org.lousson.record
  */
-class InvalidRecordError
+class RecordArgumentError
     extends InvalidArgumentError
     implements AnyRecordException
 {

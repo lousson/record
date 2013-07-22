@@ -45,7 +45,7 @@ namespace Lousson\Record\Builtin\Parser;
 /** Dependencies: */
 use Lousson\Record\AnyRecordParser;
 use Lousson\Record\Builtin\BuiltinRecordHandler;
-use Lousson\Record\Error\InvalidRecordError;
+use Lousson\Record\Error\RecordArgumentError;
 
 /**
  *  An INI record parser
@@ -100,8 +100,8 @@ class BuiltinRecordParserINI
     {
         if (!is_array($data)) {
             $message = "Could not parse INI record: $error";
-            $code = InvalidRecordError::E_INTERNAL_ERROR;
-            throw new InvalidRecordError($message, $code);
+            $code = RecordArgumentError::E_INTERNAL_ERROR;
+            throw new RecordArgumentError($message, $code);
         }
     }
 }

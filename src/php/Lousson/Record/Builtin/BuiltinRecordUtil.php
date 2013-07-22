@@ -43,7 +43,7 @@
 namespace Lousson\Record\Builtin;
 
 /** Dependencies: */
-use Lousson\Record\Error\InvalidRecordError;
+use Lousson\Record\Error\RecordArgumentError;
 
 /**
  *  A utility for record entities
@@ -84,7 +84,7 @@ final class BuiltinRecordUtil
         try {
             self::validateData($data);
         }
-        catch (InvalidRecordError $error) {
+        catch (RecordArgumentError $error) {
             $message = $error->getMessage();
             $isValidData = false;
         }
@@ -115,7 +115,7 @@ final class BuiltinRecordUtil
         try {
             self::validateName($name);
         }
-        catch (InvalidRecordError $error) {
+        catch (RecordArgumentError $error) {
             $message = $error->getMessage();
             $isValidName = false;
         }
@@ -146,7 +146,7 @@ final class BuiltinRecordUtil
         try {
             self::validateItem($item);
         }
-        catch (InvalidRecordError $error) {
+        catch (RecordArgumentError $error) {
             $message = $error->getMessage();
             $isValidItem = false;
         }
@@ -197,7 +197,7 @@ final class BuiltinRecordUtil
      *  @return array
      *          The normalized record data is returned on success
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the record $data is invalid
      */
     public static function normalizeData(array $data, array $i = array())
@@ -226,7 +226,7 @@ final class BuiltinRecordUtil
      *  @return mixed
      *          The normalized name is returned on success
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the record $name is invalid
      */
     public static function normalizeName($name, array $i = array())
@@ -248,7 +248,7 @@ final class BuiltinRecordUtil
      *  @return mixed
      *          The normalized item is returned on success
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the record $item is invalid
      */
     public static function normalizeItem($item, array $i = array())
@@ -278,7 +278,7 @@ final class BuiltinRecordUtil
      *  @return string
      *          The normalized media type name is returned on success
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the media $type is invalid
      */
     public static function normalizeType($type)
@@ -298,7 +298,7 @@ final class BuiltinRecordUtil
      *  @param  array               $data       The record data
      *  @param  array               $i          The record index
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the record $data is invalid
      */
     public static function validateData(array $data, array $i = array())
@@ -320,7 +320,7 @@ final class BuiltinRecordUtil
      *  @param  string              $name       The item name
      *  @param  array               $i          The record index
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the item $name is invalid
      */
     public static function validateName($name, array $i = array())
@@ -332,8 +332,8 @@ final class BuiltinRecordUtil
                 "" === $string) {
             $path = $i? implode("/", $i): "";
             $message = "Invalid record key at /$path: \"$name\"";
-            $code = InvalidRecordError::E_INVALID_RECORD;
-            throw new InvalidRecordError($message, $code);
+            $code = RecordArgumentError::E_INVALID_RECORD;
+            throw new RecordArgumentError($message, $code);
         }
     }
 
@@ -346,7 +346,7 @@ final class BuiltinRecordUtil
      *  @param  mixed               $item       The record item
      *  @param  array               $i          The record index
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the record $item is invalid
      */
     public static function validateItem($item, array $i = array())
@@ -360,8 +360,8 @@ final class BuiltinRecordUtil
             $path = implode("/", $i);
             $type = is_object($item)? get_class($item): gettype($item);
             $message = "Invalid record item at /$path: $type";
-            $code = InvalidRecordError::E_INVALID_RECORD;
-            throw new InvalidRecordError($message, $code);
+            $code = RecordArgumentError::E_INVALID_RECORD;
+            throw new RecordArgumentError($message, $code);
         }
     }
 
@@ -373,14 +373,14 @@ final class BuiltinRecordUtil
      *
      *  @param  string              $type       The media type
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the media $type is invalid
      */
     public static function validateType($type)
     {
         if (!self::isValidType($type, $message)) {
-            $code = InvalidRecordError::E_NOT_SUPPORTED;
-            throw new InvalidRecordError($message, $code);
+            $code = RecordArgumentError::E_NOT_SUPPORTED;
+            throw new RecordArgumentError($message, $code);
         }
     }
 
@@ -396,7 +396,7 @@ final class BuiltinRecordUtil
      *  @return array
      *          The normalized item list is returned on success
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the item $list is invalid
      */
     private static function normalizeList(array $list, array $i = array())
@@ -419,7 +419,7 @@ final class BuiltinRecordUtil
      *  @param  array               $list       The item list
      *  @param  array               $i          The record index
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the item $list is invalid
      */
     private static function validateList(array $list, array $i = array())

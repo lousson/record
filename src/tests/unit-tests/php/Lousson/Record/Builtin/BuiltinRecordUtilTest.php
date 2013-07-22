@@ -45,7 +45,7 @@ namespace Lousson\Record\Builtin;
 /** Dependencies: */
 use Lousson\Record\AbstractRecordTest;
 use Lousson\Record\Builtin\BuiltinRecordUtil;
-use Lousson\Record\Error\InvalidRecordError;
+use Lousson\Record\Error\RecordArgumentError;
 
 /**
  *  A test case for the builtin record utility
@@ -126,8 +126,8 @@ final class BuiltinRecordUtilTest extends AbstractRecordTest
     {
         if (!BuiltinRecordUtil::isValidData($data, $message)) {
             $this->setExpectedException(
-                "Lousson\\Record\\Error\\InvalidRecordError",
-                $message, InvalidRecordError::E_INVALID_RECORD
+                "Lousson\\Record\\Error\\RecordArgumentError",
+                $message, RecordArgumentError::E_INVALID_RECORD
             );
         }
 
@@ -214,8 +214,8 @@ final class BuiltinRecordUtilTest extends AbstractRecordTest
     {
         if (!BuiltinRecordUtil::isValidData($data, $message)) {
             $this->setExpectedException(
-                "Lousson\\Record\\Error\\InvalidRecordError",
-                $message, InvalidRecordError::E_INVALID_RECORD
+                "Lousson\\Record\\Error\\RecordArgumentError",
+                $message, RecordArgumentError::E_INVALID_RECORD
             );
         }
 
@@ -292,8 +292,8 @@ final class BuiltinRecordUtilTest extends AbstractRecordTest
     {
         if (!BuiltinRecordUtil::isValidName($name, $message)) {
             $this->setExpectedException(
-                "Lousson\\Record\\Error\\InvalidRecordError",
-                $message, InvalidRecordError::E_INVALID_RECORD
+                "Lousson\\Record\\Error\\RecordArgumentError",
+                $message, RecordArgumentError::E_INVALID_RECORD
             );
         }
 
@@ -380,8 +380,8 @@ final class BuiltinRecordUtilTest extends AbstractRecordTest
     {
         if (!BuiltinRecordUtil::isValidName($name, $message)) {
             $this->setExpectedException(
-                "Lousson\\Record\\Error\\InvalidRecordError",
-                $message, InvalidRecordError::E_INVALID_RECORD
+                "Lousson\\Record\\Error\\RecordArgumentError",
+                $message, RecordArgumentError::E_INVALID_RECORD
             );
         }
 
@@ -458,8 +458,8 @@ final class BuiltinRecordUtilTest extends AbstractRecordTest
     {
         if (!BuiltinRecordUtil::isValidItem($item, $message)) {
             $this->setExpectedException(
-                "Lousson\\Record\\Error\\InvalidRecordError",
-                $message, InvalidRecordError::E_INVALID_RECORD
+                "Lousson\\Record\\Error\\RecordArgumentError",
+                $message, RecordArgumentError::E_INVALID_RECORD
             );
         }
 
@@ -552,8 +552,8 @@ final class BuiltinRecordUtilTest extends AbstractRecordTest
     {
         if (!BuiltinRecordUtil::isValidItem($item, $message)) {
             $this->setExpectedException(
-                "Lousson\\Record\\Error\\InvalidRecordError",
-                $message, InvalidRecordError::E_INVALID_RECORD
+                "Lousson\\Record\\Error\\RecordArgumentError",
+                $message, RecordArgumentError::E_INVALID_RECORD
             );
         }
 
@@ -630,8 +630,8 @@ final class BuiltinRecordUtilTest extends AbstractRecordTest
     {
         if (!BuiltinRecordUtil::isValidType($type, $message)) {
             $this->setExpectedException(
-                "Lousson\\Record\\Error\\InvalidRecordError",
-                $message, InvalidRecordError::E_NOT_SUPPORTED
+                "Lousson\\Record\\Error\\RecordArgumentError",
+                $message, RecordArgumentError::E_NOT_SUPPORTED
             );
         }
 
@@ -718,8 +718,8 @@ final class BuiltinRecordUtilTest extends AbstractRecordTest
     {
         if (!BuiltinRecordUtil::isValidType($type, $message)) {
             $this->setExpectedException(
-                "Lousson\\Record\\Error\\InvalidRecordError",
-                $message, InvalidRecordError::E_NOT_SUPPORTED
+                "Lousson\\Record\\Error\\RecordArgumentError",
+                $message, RecordArgumentError::E_NOT_SUPPORTED
             );
         }
 

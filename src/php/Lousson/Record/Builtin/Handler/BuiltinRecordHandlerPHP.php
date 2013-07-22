@@ -45,7 +45,7 @@ namespace Lousson\Record\Builtin\Handler;
 /** Dependencies: */
 use Lousson\Record\AnyRecordHandler;
 use Lousson\Record\Builtin\BuiltinRecordHandler;
-use Lousson\Record\Error\InvalidRecordError;
+use Lousson\Record\Error\RecordArgumentError;
 
 /**
  *  A PHP record handler
@@ -102,8 +102,8 @@ class BuiltinRecordHandlerPHP
 
         if (!is_array($data)) {
             $message = "Could not parse PHP record: $error";
-            $code = InvalidRecordError::E_INTERNAL_ERROR;
-            throw new InvalidRecordError($message, $code);
+            $code = RecordArgumentError::E_INTERNAL_ERROR;
+            throw new RecordArgumentError($message, $code);
         }
 
         $record = $this->normalizeOutputData($data);

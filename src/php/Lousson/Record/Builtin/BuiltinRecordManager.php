@@ -50,7 +50,7 @@ use Lousson\Record\AnyRecordManager;
 use Lousson\Record\Builtin\BuiltinRecordFactory;
 
 /** Exceptions: */
-use Lousson\Record\Error\InvalidRecordError;
+use Lousson\Record\Error\RecordArgumentError;
 
 /**
  *  The default record manager implementation
@@ -179,7 +179,7 @@ class BuiltinRecordManager implements AnyRecordManager
      *  @return string
      *          A byte sequence is returned on success
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the $location's content could not get loaded
      */
     private function loadContent($location, &$type)
@@ -203,7 +203,7 @@ class BuiltinRecordManager implements AnyRecordManager
 
         if (false === $content) {
             $message = "Could not load record: $error";
-            throw new InvalidRecordError($message);
+            throw new RecordArgumentError($message);
         }
 
         return $content;
@@ -218,7 +218,7 @@ class BuiltinRecordManager implements AnyRecordManager
      *  @param  string              $location       The content location
      *  @param  string              $content        The content data
      *
-     *  @throws \Lousson\Record\Error\InvalidRecordError
+     *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the $content could not get saved
      */
     private function saveContent($location, $content)
@@ -232,7 +232,7 @@ class BuiltinRecordManager implements AnyRecordManager
 
         if (false === $status) {
             $message = "Could not save record: $error";
-            throw new InvalidRecordError($message);
+            throw new RecordArgumentError($message);
         }
 
     }

@@ -50,7 +50,7 @@ use Lousson\Record\Builtin\BuiltinRecordHandler;
 use Symfony\Component\Yaml;
 
 /** Exceptions: */
-use Lousson\Record\Error\InvalidRecordError;
+use Lousson\Record\Error\RecordArgumentError;
 use Lousson\Record\Error\RecordRuntimeError;
 
 /**
@@ -142,8 +142,8 @@ class BuiltinRecordHandlerYAML
         catch (\Exception $error) {
             $class = get_class($error);
             $message = "Could not parse YAML record: Caught $class";
-            $code = InvalidRecordError::E_UNKNOWN;
-            throw new InvalidRecordError($message, $code, $error);
+            $code = RecordArgumentError::E_UNKNOWN;
+            throw new RecordArgumentError($message, $code, $error);
         }
 
         $record = $this->normalizeOutputData($data);
