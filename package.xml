@@ -74,8 +74,8 @@ ${contents}
       <package>
         <name>Lousson_Exception</name>
         <channel>pear.lousson.org</channel>
-        <min>0.2.0</min>
-        <max>0.999.999</max>
+        <min>1.0.0</min>
+        <max>1.999.999</max>
       </package>
       <package>
         <name>Yaml</name>
