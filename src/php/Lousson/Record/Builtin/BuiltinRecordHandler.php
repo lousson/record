@@ -45,7 +45,7 @@ namespace Lousson\Record\Builtin;
 /** Dependencies: */
 use Lousson\Record\Builtin\BuiltinRecordUtil;
 use Lousson\Record\Error\InvalidRecordError;
-use Lousson\Record\Error\RuntimeRecordError;
+use Lousson\Record\Error\RecordRuntimeError;
 
 /**
  *  An abstract record handler
@@ -84,7 +84,7 @@ abstract class BuiltinRecordHandler
      *
      *  @param  array               $data       The data to process
      *
-     *  @throws \Lousson\Record\Error\RuntimeRecordError
+     *  @throws \Lousson\Record\Error\RecordRuntimeError
      *          Raised in case the given $data is invalid or malformed
      */
     final protected function normalizeOutputData(array $data)
@@ -96,7 +96,7 @@ abstract class BuiltinRecordHandler
         catch (InvalidRecordError $error) {
             $message = $error->getMessage();
             $code = $error->getCode();
-            throw new RuntimeRecordError($message, $code);
+            throw new RecordRuntimeError($message, $code);
         }
     }
 }

@@ -48,7 +48,7 @@ use Lousson\Record\AnyRecordFactory;
 use Lousson\Record\AnyRecordHandler;
 use Lousson\Record\AnyRecordParser;
 use Lousson\Record\Builtin\BuiltinRecordUtil;
-use Lousson\Record\Error\RuntimeRecordError;
+use Lousson\Record\Error\RecordRuntimeError;
 use Lousson\Record\Generic\GenericRecordHandler;
 
 /**
@@ -109,8 +109,8 @@ class GenericRecordFactory implements AnyRecordFactory
         }
         else {
             $message = "Could not provide \"$normalizedType\" parser";
-            $code = RuntimeRecordError::E_NOT_SUPPORTED;
-            throw new RuntimeRecordError($message, $code);
+            $code = RecordRuntimeError::E_NOT_SUPPORTED;
+            throw new RecordRuntimeError($message, $code);
         }
 
         return $parser;
@@ -143,8 +143,8 @@ class GenericRecordFactory implements AnyRecordFactory
         }
         else {
             $message = "Could not provide \"$normalizedType\" builder";
-            $code = RuntimeRecordError::E_NOT_SUPPORTED;
-            throw new RuntimeRecordError($message, $code);
+            $code = RecordRuntimeError::E_NOT_SUPPORTED;
+            throw new RecordRuntimeError($message, $code);
         }
 
         return $builder;

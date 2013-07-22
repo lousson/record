@@ -46,7 +46,7 @@ namespace Lousson\Record\Builtin\Handler;
 use Lousson\Record\AnyRecordHandler;
 use Lousson\Record\Builtin\BuiltinRecordHandler;
 use Lousson\Record\Error\InvalidRecordError;
-use Lousson\Record\Error\RuntimeRecordError;
+use Lousson\Record\Error\RecordRuntimeError;
 
 /**
  *  A JSON record handler
@@ -135,8 +135,8 @@ class BuiltinRecordHandlerJSON
     {
         if (false === $sequence) {
             $message = "Failed to build JSON record: $error";
-            $code = RuntimeRecordError::E_INTERNAL_ERROR;
-            throw new RuntimeRecordError($message, $code);
+            $code = RecordRuntimeError::E_INTERNAL_ERROR;
+            throw new RecordRuntimeError($message, $code);
         }
     }
 }

@@ -45,7 +45,7 @@ namespace Lousson\Record\Builtin;
 /** Dependencies: */
 use Lousson\Record\AnyRecordFactory;
 use Lousson\Record\Builtin\BuiltinRecordUtil;
-use Lousson\Record\Error\RuntimeRecordError;
+use Lousson\Record\Error\RecordRuntimeError;
 use Lousson\Record\Generic\GenericRecordHandler;
 
 /**
@@ -136,8 +136,8 @@ class BuiltinRecordFactory implements AnyRecordFactory
         }
         else {
             $message = "Could not provide \"$normalizedType\" handler";
-            $code = RuntimeRecordError::E_NOT_SUPPORTED;
-            throw new RuntimeRecordError($message, $code);
+            $code = RecordRuntimeError::E_NOT_SUPPORTED;
+            throw new RecordRuntimeError($message, $code);
         }
 
         return $handler;

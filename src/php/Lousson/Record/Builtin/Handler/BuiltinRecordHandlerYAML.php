@@ -51,7 +51,7 @@ use Symfony\Component\Yaml;
 
 /** Exceptions: */
 use Lousson\Record\Error\InvalidRecordError;
-use Lousson\Record\Error\RuntimeRecordError;
+use Lousson\Record\Error\RecordRuntimeError;
 
 /**
  *  A YAML record handler
@@ -109,8 +109,8 @@ class BuiltinRecordHandlerYAML
         catch (\Exception $error) {
             $class = get_class($error);
             $message = "Failed to build YAML record: Caught $class";
-            $code = RuntimeRecordError::E_UNKNOWN;
-            throw new RuntimeRecordError($message, $code, $error);
+            $code = RecordRuntimeError::E_UNKNOWN;
+            throw new RecordRuntimeError($message, $code, $error);
         }
 
         return $sequence;

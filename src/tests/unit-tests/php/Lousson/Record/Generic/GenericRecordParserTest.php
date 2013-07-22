@@ -45,7 +45,7 @@ namespace Lousson\Record\Generic;
 /** Dependencies: */
 use Lousson\Record\Builtin\Handler\BuiltinRecordHandlerPHP;
 use Lousson\Record\Builtin\Handler\BuiltinRecordHandlerPHPTest;
-use Lousson\Record\Error\RuntimeRecordError;
+use Lousson\Record\Error\RecordRuntimeError;
 use Lousson\Record\Generic\GenericRecordParser;
 use Closure;
 use OutOfBoundsException;
@@ -100,7 +100,7 @@ final class GenericRecordParserTest
         };
 
         $cb[][] = function($sequence) {
-            throw new RuntimeRecordError("BAR");
+            throw new RecordRuntimeError("BAR");
         };
 
         $cb[][] = function($sequence) {

@@ -46,7 +46,7 @@ namespace Lousson\Record\Generic;
 use Lousson\Record\AnyRecordBuilder;
 use Lousson\Record\AnyRecordException;
 use Lousson\Record\Builtin\BuiltinRecordHandler;
-use Lousson\Record\Error\RuntimeRecordError;
+use Lousson\Record\Error\RecordRuntimeError;
 use Closure;
 use Exception;
 
@@ -107,15 +107,15 @@ class GenericRecordBuilder
         catch (Exception $error) {
             $errorClass = get_class($error);
             $message = "Failed to build record; caught $errorClass";
-            $code = RuntimeRecordError::E_INTERNAL_ERROR;
-            throw new RuntimeRecordError($message, $code);
+            $code = RecordRuntimeError::E_INTERNAL_ERROR;
+            throw new RecordRuntimeError($message, $code);
         }
 
         if (!is_string($sequence)) {
             $sequenceType = gettype($sequence);
             $message = "Failed to build record; got $sequenceType";
-            $code = RuntimeRecordError::E_INTERNAL_ERROR;
-            throw new RuntimeRecordError($message, $code);
+            $code = RecordRuntimeError::E_INTERNAL_ERROR;
+            throw new RecordRuntimeError($message, $code);
         }
 
         return $sequence;
