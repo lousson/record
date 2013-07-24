@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\Parser\BuiltinRecordParserINITest definition
+ *  Lousson\Record\Builtin\BuiltinRecordParserINI class definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,104 +40,68 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Builtin\Parser;
+namespace Lousson\Record\Builtin;
 
 /** Dependencies: */
-use Lousson\Record\AbstractRecordHandlerTest;
-use Lousson\Record\Builtin\Parser\BuiltinRecordParserINI;
-use ReflectionException;
-use ReflectionMethod;
+use Lousson\Record\AnyRecordParser;
+use Lousson\Record\Builtin\BuiltinRecordHandler;
+use Lousson\Record\Error\RecordArgumentError;
 
 /**
- *  A test case for the builtin INI record parser
+ *  An INI record parser
  *
  *  @since      lousson/Lousson_Record-0.1.0
  *  @package    org.lousson.record
- *  @link       http://www.phpunit.de/manual/current/en/
  */
-class BuiltinRecordParserINITest
-    extends AbstractRecordHandlerTest
+class BuiltinRecordParserINI
+    extends BuiltinRecordHandler
+    implements AnyRecordParser
 {
     /**
-     *  Obtain the record parser to test
+     *  Parse record content
      *
-     *  The getRecordParser() method returns the record parser instance
-     *  that is used in the tests.
+     *  The parseRecord() method returns an array representing the given
+     *  byte $sequence in its unserialized form.
      *
-     *  @return \Lousson\Record\AnyRecordParser
-     *          A record parser instance is returned on success
-     */
-    public function getRecordParser()
-    {
-        $parser = new BuiltinRecordParserINI();
-        return $parser;
-    }
-
-    /**
-     *  Provide valid parseRecord() parameters
-     *
-     *  The provideValidRecordBytes() method returns an array of multiple
-     *  items, each of whose is an array with one item; a sequence of bytes
-     *  representing valid record data.
+     *  @param  string              $sequence   The record's byte sequence
      *
      *  @return array
-     *          A list of parseRecord() parameters is returned on success
-     */
-    public function provideValidRecordBytes()
-    {
-        $data[][] = 'foo = bar';
-        $data[][] = 'foo[bar] = baz';
-        $data[][] = "[intern]
-            foo = baz
-            bar = baz
-        ";
-
-        return $data;
-    }
-
-    /**
-     *  Provide invalid parseRecord() parameters
-     *
-     *  The provideInvalidRecordBytes() method returns an array of multiple
-     *  items, each of whose is an array with one item; a sequence of bytes
-     *  representing invalid record data.
-     *
-     *  @return array
-     *          A list of parseRecord() parameters is returned on success
-     */
-    public function provideInvalidRecordBytes()
-    {
-        $data[][] = "foo[] = 1\nfoo[bar] = baz";
-        $data[][] = "foo[bar] = 1\nfoo[b a z] = 1";
-
-        return $data;
-    }
-
-    /**
-     *  Test the error handling
-     *
-     *  The testCheckRecordData() method is a test case for scenarios
-     *  where the INI parsing in parseRecord() fails.
-     *
-     *  @expectedException          \Lousson\Record\AnyRecordException
-     *  @test
+     *          The unserialized record is returned on success
      *
      *  @throws \Lousson\Record\AnyRecordException
-     *          Raised in case the test is successful
-     *
-     *  @throws \ReflectionException
-     *          Raised in case of an internal error
+     *          Indicates a malformed $sequence or an internal error
      */
-    public function testCheckRecordData()
+    final public function parseRecord($sequence)
     {
-        try {
-            $builder = $this->getRecordParser();
-            $method = new ReflectionMethod($builder, "checkRecordData");
-            $method->setAccessible(true);
-            $method->invoke($builder, false, "UNKNOWN ERROR");
-        }
-        catch (ReflectionException $error) {
-            $this->markTestSkipped();
+        $setup = ini_set("track_errors", true);
+        $php_errormsg = "UNKNOWN ERROR";
+        $data = parse_ini_string($sequence, false, INI_SCANNER_RAW);
+        $error = $php_errormsg;
+        ini_set("track_errors", $setup);
+        $this->checkRecordData($data, $error);
+        $record = $this->normalizeOutputData($data);
+        return $record;
+    }
+
+    /**
+     *  Verify record data parsed
+     *
+     *  The checkRecordData() method is used internally to check the data
+     *  parsed by parseRecord(). This used to be done inline, but since it
+     *  is hard to test this way, it has been moved into its own method.
+     *
+     *  @param  array               $data           The record data
+     *  @param  string              $error          The error message
+     *
+     *  @throws \Lousson\Record\AnyRecordException
+     *          Raised in case $sequence is not an array
+     */
+    private function checkRecordData($data, $error)
+    {
+        if (!is_array($data)) {
+            $message = "Could not parse INI record: $error";
+            $code = RecordArgumentError::E_INTERNAL_ERROR;
+            throw new RecordArgumentError($message, $code);
         }
     }
 }

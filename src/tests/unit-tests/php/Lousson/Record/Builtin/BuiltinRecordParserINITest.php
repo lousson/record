@@ -32,60 +32,44 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\Handler\BuiltinRecordHandlerYAMLTest definition
+ *  Lousson\Record\Builtin\BuiltinRecordParserINITest definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
- *  @author     Attila G. Levai <sgnl19 at gmail.com>
+ *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Builtin\Handler;
+namespace Lousson\Record\Builtin;
 
 /** Dependencies: */
 use Lousson\Record\AbstractRecordHandlerTest;
-use Lousson\Record\Builtin\Handler\BuiltinRecordHandlerYAML;
+use Lousson\Record\Builtin\BuiltinRecordParserINI;
 use ReflectionException;
 use ReflectionMethod;
 
 /**
- *  A test case for the builtin YAML record builder
+ *  A test case for the builtin INI record parser
  *
- *  @since      lousson/Lousson_Record-0.6.0
+ *  @since      lousson/Lousson_Record-0.1.0
  *  @package    org.lousson.record
+ *  @link       http://www.phpunit.de/manual/current/en/
  */
-final class BuiltinRecordHandlerYAMLTest
+class BuiltinRecordParserINITest
     extends AbstractRecordHandlerTest
 {
-    /**
-     *  Obtain the record builder to test
-     *
-     *  The getRecordBuilder() method returns the record builder instance
-     *  that is used in the tests or NULL, in case the test does not have
-     *  an associated builder.
-     *
-     *  @return \Lousson\Record\AnyRecordBuilder
-     *          A record builder instance is returned on success
-     */
-    public function getRecordBuilder()
-    {
-        $builder = new BuiltinRecordHandlerYAML();
-        return $builder;
-    }
-
     /**
      *  Obtain the record parser to test
      *
      *  The getRecordParser() method returns the record parser instance
-     *  that is used in the tests or NULL, in case the test does not have
-     *  an associated parser.
+     *  that is used in the tests.
      *
-     *  @return \Lousson\Record\AnyRecordBuilder
-     *          A record builder instance is returned on success
+     *  @return \Lousson\Record\AnyRecordParser
+     *          A record parser instance is returned on success
      */
     public function getRecordParser()
     {
-        $parser = new BuiltinRecordHandlerYAML();
+        $parser = new BuiltinRecordParserINI();
         return $parser;
     }
 
@@ -101,9 +85,12 @@ final class BuiltinRecordHandlerYAMLTest
      */
     public function provideValidRecordBytes()
     {
-        $data[][] = '{"foo":"bar","baz":[0,1,2,3,4,5]}';
-        $data[][] = '{"foo":{"bar":"baz"}}';
-        $data[][] = '{"foobar":null}';
+        $data[][] = 'foo = bar';
+        $data[][] = 'foo[bar] = baz';
+        $data[][] = "[intern]
+            foo = baz
+            bar = baz
+        ";
 
         return $data;
     }
@@ -120,63 +107,38 @@ final class BuiltinRecordHandlerYAMLTest
      */
     public function provideInvalidRecordBytes()
     {
-        $data[][] = '{"foo":"bar","0 1 2":"baz"}';
+        $data[][] = "foo[] = 1\nfoo[bar] = baz";
+        $data[][] = "foo[bar] = 1\nfoo[b a z] = 1";
 
         return $data;
     }
 
     /**
-     *  Test the buildRecord() method
+     *  Test the error handling
      *
-     +  The testBuildRecordException() method is a test case to verify
-     *  that exceptions raised by the Yaml\Dumper are handled properly.
+     *  The testCheckRecordData() method is a test case for scenarios
+     *  where the INI parsing in parseRecord() fails.
      *
-     *  @expectedException          Lousson\Record\AnyRecordException
+     *  @expectedException          \Lousson\Record\AnyRecordException
      *  @test
      *
      *  @throws \Lousson\Record\AnyRecordException
      *          Raised in case the test is successful
      *
-     *  @throws \Exception
-     *          Raised in case of an implementation error
+     *  @throws \ReflectionException
+     *          Raised in case of an internal error
      */
-    public function testBuildRecordException()
+    public function testCheckRecordData()
     {
-        $dumper = $this->getMock("Symfony\Component\Yaml\Dumper");
-        $dumper
-            ->expects($this->once())
-            ->method("dump")
-            ->will($this->throwException(new \DomainException));
-
-        $handler = new BuiltinRecordHandlerYAML(null, $dumper);
-        $handler->buildRecord(array());
-    }
-
-    /**
-     *  Test the parseRecprd() method
-     *
-     +  The testBuildRecordException() method is a test case to verify
-     *  that exceptions raised by the Yaml\Parser are handled properly.
-     *
-     *  @expectedException          Lousson\Record\AnyRecordException
-     *  @test
-     *
-     *  @throws \Lousson\Record\AnyRecordException
-     *          Raised in case the test is successful
-     *
-     *  @throws \Exception
-     *          Raised in case of an implementation error
-     */
-    public function testParseRecordException()
-    {
-        $parser = $this->getMock("Symfony\Component\Yaml\Parser");
-        $parser
-            ->expects($this->once())
-            ->method("parse")
-            ->will($this->throwException(new \DomainException));
-
-        $handler = new BuiltinRecordHandlerYAML($parser, null);
-        $handler->parseRecord("foo. bar? baz!");
+        try {
+            $builder = $this->getRecordParser();
+            $method = new ReflectionMethod($builder, "checkRecordData");
+            $method->setAccessible(true);
+            $method->invoke($builder, false, "UNKNOWN ERROR");
+        }
+        catch (ReflectionException $error) {
+            $this->markTestSkipped();
+        }
     }
 }
 

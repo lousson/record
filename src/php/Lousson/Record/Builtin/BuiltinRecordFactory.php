@@ -215,9 +215,9 @@ class BuiltinRecordFactory implements AnyRecordFactory
      */
     private $parsers = array(
         "application/textedit" =>
-            "Lousson\\Record\\Builtin\\Parser\\BuiltinRecordParserINI",
+            "Lousson\\Record\\Builtin\\BuiltinRecordParserINI",
         "zz-application/zz-winassoc-ini" =>
-            "Lousson\\Record\\Builtin\\Parser\\BuiltinRecordParserINI",
+            "Lousson\\Record\\Builtin\\BuiltinRecordParserINI",
     );
 
     /**
@@ -227,21 +227,21 @@ class BuiltinRecordFactory implements AnyRecordFactory
      */
     private $handlers = array(
         "application/json" =>
-            "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerJSON",
+            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerJSON",
         "application/vnd.php.serialized" =>
-            "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerPHP",
+            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerPHP",
         "text/json" =>
-            "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerJSON",
+            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerJSON",
         "text/x-json" =>
-            "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerJSON",
+            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerJSON",
         "text/yaml" =>
-            "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerYAML",
+            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerYAML",
         "text/x-yaml" =>
-            "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerYAML",
+            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerYAML",
         "application/yaml" =>
-            "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerYAML",
+            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerYAML",
         "application/x-yaml" =>
-            "Lousson\\Record\\Builtin\\Handler\\BuiltinRecordHandlerYAML",
+            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerYAML",
     );
 }
 

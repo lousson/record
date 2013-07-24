@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\Parser\BuiltinRecordParserINI class definition
+ *  Lousson\Record\Builtin\BuiltinRecordHandlerPHP class definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,23 +40,44 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Builtin\Parser;
+namespace Lousson\Record\Builtin;
 
 /** Dependencies: */
-use Lousson\Record\AnyRecordParser;
+use Lousson\Record\AnyRecordHandler;
 use Lousson\Record\Builtin\BuiltinRecordHandler;
 use Lousson\Record\Error\RecordArgumentError;
 
 /**
- *  An INI record parser
+ *  A PHP record handler
  *
- *  @since      lousson/Lousson_Record-0.1.0
+ *  @since      lousson/Lousson_Record-0.2.0
  *  @package    org.lousson.record
  */
-class BuiltinRecordParserINI
+class BuiltinRecordHandlerPHP
     extends BuiltinRecordHandler
-    implements AnyRecordParser
+    implements AnyRecordHandler
 {
+    /**
+     *  Build record content
+     *
+     *  The buildRecord() method returns a byte sequence representing the
+     *  given $record in its serialized form.
+     *
+     *  @param  array               $data       The record's data
+     *
+     *  @return string
+     *          The serialized record is returned on success
+     *
+     *  @throws \Lousson\Record\AnyRecordException
+     *          Raised in case of malformed $data or internal errors
+     */
+    public function buildRecord(array $data)
+    {
+        $record = $this->normalizeInputData($data);
+        $sequence = serialize($record);
+        return $sequence;
+    }
+
     /**
      *  Parse record content
      *
@@ -71,38 +92,22 @@ class BuiltinRecordParserINI
      *  @throws \Lousson\Record\AnyRecordException
      *          Indicates a malformed $sequence or an internal error
      */
-    final public function parseRecord($sequence)
+    public function parseRecord($sequence)
     {
         $setup = ini_set("track_errors", true);
         $php_errormsg = "UNKNOWN ERROR";
-        $data = parse_ini_string($sequence, false, INI_SCANNER_RAW);
+        $data = unserialize($sequence);
         $error = $php_errormsg;
         ini_set("track_errors", $setup);
-        $this->checkRecordData($data, $error);
-        $record = $this->normalizeOutputData($data);
-        return $record;
-    }
 
-    /**
-     *  Verify record data parsed
-     *
-     *  The checkRecordData() method is used internally to check the data
-     *  parsed by parseRecord(). This used to be done inline, but since it
-     *  is hard to test this way, it has been moved into its own method.
-     *
-     *  @param  array               $data           The record data
-     *  @param  string              $error          The error message
-     *
-     *  @throws \Lousson\Record\AnyRecordException
-     *          Raised in case $sequence is not an array
-     */
-    private function checkRecordData($data, $error)
-    {
         if (!is_array($data)) {
-            $message = "Could not parse INI record: $error";
+            $message = "Could not parse PHP record: $error";
             $code = RecordArgumentError::E_INTERNAL_ERROR;
             throw new RecordArgumentError($message, $code);
         }
+
+        $record = $this->normalizeOutputData($data);
+        return $record;
     }
 }
 

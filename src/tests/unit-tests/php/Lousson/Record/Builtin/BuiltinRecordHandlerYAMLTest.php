@@ -32,30 +32,30 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Generic\GenericRecordHandlerTest definition
+ *  Lousson\Record\Builtin\BuiltinRecordHandlerYAMLTest definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
- *  @author     Mathias J. Hennig <mhennig at quirkies.org>
+ *  @author     Attila G. Levai <sgnl19 at gmail.com>
  *  @filesource
  */
-namespace Lousson\Record\Generic;
+namespace Lousson\Record\Builtin;
 
 /** Dependencies: */
-use Lousson\Record\Builtin\BuiltinRecordHandlerPHP;
-use Lousson\Record\Builtin\BuiltinRecordHandlerPHPTest;
-use Lousson\Record\Generic\GenericRecordHandler;
+use Lousson\Record\AbstractRecordHandlerTest;
+use Lousson\Record\Builtin\BuiltinRecordHandlerYAML;
+use ReflectionException;
+use ReflectionMethod;
 
 /**
- *  A test case for the builtin PHP record builder
+ *  A test case for the builtin YAML record builder
  *
- *  @since      lousson/Lousson_Record-0.1.0
+ *  @since      lousson/Lousson_Record-0.6.0
  *  @package    org.lousson.record
- *  @link       http://www.phpunit.de/manual/current/en/
  */
-class GenericRecordHandlerTest
-    extends BuiltinRecordHandlerPHPTest
+final class BuiltinRecordHandlerYAMLTest
+    extends AbstractRecordHandlerTest
 {
     /**
      *  Obtain the record builder to test
@@ -69,8 +69,7 @@ class GenericRecordHandlerTest
      */
     public function getRecordBuilder()
     {
-        $handler = new BuiltinRecordHandlerPHP();
-        $builder = new GenericRecordHandler($handler, $handler);
+        $builder = new BuiltinRecordHandlerYAML();
         return $builder;
     }
 
@@ -86,9 +85,98 @@ class GenericRecordHandlerTest
      */
     public function getRecordParser()
     {
-        $handler = new BuiltinRecordHandlerPHP();
-        $parser = new GenericRecordHandler($handler, $handler);
+        $parser = new BuiltinRecordHandlerYAML();
         return $parser;
+    }
+
+    /**
+     *  Provide valid parseRecord() parameters
+     *
+     *  The provideValidRecordBytes() method returns an array of multiple
+     *  items, each of whose is an array with one item; a sequence of bytes
+     *  representing valid record data.
+     *
+     *  @return array
+     *          A list of parseRecord() parameters is returned on success
+     */
+    public function provideValidRecordBytes()
+    {
+        $data[][] = '{"foo":"bar","baz":[0,1,2,3,4,5]}';
+        $data[][] = '{"foo":{"bar":"baz"}}';
+        $data[][] = '{"foobar":null}';
+
+        return $data;
+    }
+
+    /**
+     *  Provide invalid parseRecord() parameters
+     *
+     *  The provideInvalidRecordBytes() method returns an array of multiple
+     *  items, each of whose is an array with one item; a sequence of bytes
+     *  representing invalid record data.
+     *
+     *  @return array
+     *          A list of parseRecord() parameters is returned on success
+     */
+    public function provideInvalidRecordBytes()
+    {
+        $data[][] = '{"foo":"bar","0 1 2":"baz"}';
+
+        return $data;
+    }
+
+    /**
+     *  Test the buildRecord() method
+     *
+     +  The testBuildRecordException() method is a test case to verify
+     *  that exceptions raised by the Yaml\Dumper are handled properly.
+     *
+     *  @expectedException          Lousson\Record\AnyRecordException
+     *  @test
+     *
+     *  @throws \Lousson\Record\AnyRecordException
+     *          Raised in case the test is successful
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
+     */
+    public function testBuildRecordException()
+    {
+        $dumper = $this->getMock("Symfony\Component\Yaml\Dumper");
+        $dumper
+            ->expects($this->once())
+            ->method("dump")
+            ->will($this->throwException(new \DomainException));
+
+        $handler = new BuiltinRecordHandlerYAML(null, $dumper);
+        $handler->buildRecord(array());
+    }
+
+    /**
+     *  Test the parseRecprd() method
+     *
+     +  The testBuildRecordException() method is a test case to verify
+     *  that exceptions raised by the Yaml\Parser are handled properly.
+     *
+     *  @expectedException          Lousson\Record\AnyRecordException
+     *  @test
+     *
+     *  @throws \Lousson\Record\AnyRecordException
+     *          Raised in case the test is successful
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
+     */
+    public function testParseRecordException()
+    {
+        $parser = $this->getMock("Symfony\Component\Yaml\Parser");
+        $parser
+            ->expects($this->once())
+            ->method("parse")
+            ->will($this->throwException(new \DomainException));
+
+        $handler = new BuiltinRecordHandlerYAML($parser, null);
+        $handler->parseRecord("foo. bar? baz!");
     }
 }
 

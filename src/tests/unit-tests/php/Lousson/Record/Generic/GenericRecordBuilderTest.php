@@ -43,8 +43,8 @@
 namespace Lousson\Record\Generic;
 
 /** Dependencies: */
-use Lousson\Record\Builtin\Handler\BuiltinRecordHandlerPHP;
-use Lousson\Record\Builtin\Handler\BuiltinRecordHandlerPHPTest;
+use Lousson\Record\Builtin\BuiltinRecordHandlerPHP;
+use Lousson\Record\Builtin\BuiltinRecordHandlerPHPTest;
 use Lousson\Record\Error\RecordRuntimeError;
 use Lousson\Record\Generic\GenericRecordBuilder;
 use Closure;

@@ -32,32 +32,55 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\Handler\BuiltinRecordHandlerJSON definition
+ *  Lousson\Record\Builtin\BuiltinRecordHandlerYAML definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
- *  @author     Mathias J. Hennig <mhennig at quirkies.org>
+ *  @author     Attila G. Levai <sgnl19 at gmail.com>
  *  @filesource
  */
-namespace Lousson\Record\Builtin\Handler;
+namespace Lousson\Record\Builtin;
+
+/** Interfaces: */
+use Lousson\Record\AnyRecordHandler;
 
 /** Dependencies: */
-use Lousson\Record\AnyRecordHandler;
 use Lousson\Record\Builtin\BuiltinRecordHandler;
+use Symfony\Component\Yaml;
+
+/** Exceptions: */
 use Lousson\Record\Error\RecordArgumentError;
 use Lousson\Record\Error\RecordRuntimeError;
 
 /**
- *  A JSON record handler
+ *  A YAML record handler
  *
- *  @since      lousson/Lousson_Record-0.2.0
+ *  @since      lousson/Lousson_Record-0.6.0
  *  @package    org.lousson.record
  */
-class BuiltinRecordHandlerJSON
+class BuiltinRecordHandlerYAML
     extends BuiltinRecordHandler
     implements AnyRecordHandler
 {
+    /**
+     *  Create a handler instance
+     *
+     *  The constructor allows the caller to provide YAML parser and
+     *  dumper instances to be used instead of those that would otherwise
+     *  be created at runtime.
+     *
+     *  @param  Yaml\Parser         $parser         The YAML parser
+     *  @param  Yaml\Dumper         $dumper         The YAML dumper
+     */
+    public function __construct(
+        Yaml\Parser $parser = null,
+        Yaml\Dumper $dumper = null
+    ) {
+        $this->parser = $parser;
+        $this->dumper = $dumper;
+    }
+
     /**
      *  Build record content
      *
@@ -75,12 +98,21 @@ class BuiltinRecordHandlerJSON
     public function buildRecord(array $data)
     {
         $record = $this->normalizeInputData($data);
-        $setup = ini_set("track_errors", true);
-        $php_errormsg = "UKNOWN ERROR";
-        $sequence = json_encode($record, JSON_HEX_TAG|JSON_HEX_APOS);
-        $error = $php_errormsg;
-        ini_set("track_errors", $setup);
-        $this->checkRecordSequence($sequence, $error);
+
+        if (!isset($this->dumper)) {
+            $this->dumper = new Yaml\Dumper();
+        }
+
+        try {
+            $sequence = $this->dumper->dump($record);
+        }
+        catch (\Exception $error) {
+            $class = get_class($error);
+            $message = "Failed to build YAML record: Caught $class";
+            $code = RecordRuntimeError::E_UNKNOWN;
+            throw new RecordRuntimeError($message, $code, $error);
+        }
+
         return $sequence;
     }
 
@@ -100,16 +132,18 @@ class BuiltinRecordHandlerJSON
      */
     public function parseRecord($sequence)
     {
-        $setup = ini_set("track_errors", true);
-        $php_errormsg = "UNKNOWN ERROR";
-        $data = json_decode($sequence, true, 512);
-        $error = $php_errormsg;
-        ini_set("track_errors", $setup);
+        if (!isset($this->parser)) {
+            $this->parser = new Yaml\Parser();
+        }
 
-        if (!is_array($data)) {
-            $message = "Could not parse JSON record: $error";
-            $code = RecordArgumentError::E_INTERNAL_ERROR;
-            throw new RecordArgumentError($message, $code);
+        try {
+            $data = $this->parser->parse($sequence);
+        }
+        catch (\Exception $error) {
+            $class = get_class($error);
+            $message = "Could not parse YAML record: Caught $class";
+            $code = RecordArgumentError::E_UNKNOWN;
+            throw new RecordArgumentError($message, $code, $error);
         }
 
         $record = $this->normalizeOutputData($data);
@@ -117,27 +151,17 @@ class BuiltinRecordHandlerJSON
     }
 
     /**
-     *  Verify byte sequences built
+     *  The YAML parser instance in use
      *
-     *  The checkRecordSequence() method is used internally to check the
-     *  byte sequence built by buildRecord(). This used to be done inline,
-     *  but since it's tricky to actually trigger a scenario where the
-     *  operation fails, which made the snippet hard to test, it has been
-     *  moved into it's own method.
-     *
-     *  @param  string              $sequence       The byte sequence
-     *  @param  string              $error          The error message
-     *
-     *  @throws \Lousson\Record\AnyRecordException
-     *          Raised in case $sequence is FALSE
+     *  @var \Symfony\Component\Yaml\Parser
      */
-    private function checkRecordSequence($sequence, $error)
-    {
-        if (false === $sequence) {
-            $message = "Failed to build JSON record: $error";
-            $code = RecordRuntimeError::E_INTERNAL_ERROR;
-            throw new RecordRuntimeError($message, $code);
-        }
-    }
+    private $parser;
+
+    /**
+     *  The YAML dumper instance in use
+     *
+     *  @var \Symfony\Component\Yaml\Dumper
+     */
+    private $dumper;
 }
 
