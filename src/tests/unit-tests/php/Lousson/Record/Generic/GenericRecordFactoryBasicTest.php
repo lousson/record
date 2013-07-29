@@ -47,8 +47,8 @@ use Lousson\Record\Generic\GenericRecordFactoryTest;
 use Lousson\Record\AnyRecordBuilder;
 use Lousson\Record\AnyRecordParser;
 use Lousson\Record\Builtin\BuiltinRecordFactory;
-use Lousson\Record\Builtin\Handler\BuiltinRecordHandlerJSON;
-use Lousson\Record\Builtin\Parser\BuiltinRecordParserINI;
+use Lousson\Record\Builtin\BuiltinRecordHandlerJSON;
+use Lousson\Record\Builtin\BuiltinRecordParserINI;
 use Lousson\Record\Generic\GenericRecordFactory;
 use Lousson\Record\Generic\GenericRecordHandler;
 
