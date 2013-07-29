@@ -42,11 +42,21 @@
  */
 namespace Lousson\Record\Builtin;
 
-/** Dependencies: */
+/** Interfaces: */
+use Lousson\Container\AnyContainer;
+use Lousson\Record\AnyRecordBuilder;
+use Lousson\Record\AnyRecordHandler;
 use Lousson\Record\AnyRecordFactory;
+use Lousson\Record\AnyRecordParser;
+use Lousson\Record\AnyRecordPlugin;
+
+/** Dependencies: */
+use Lousson\Container\Generic\GenericContainerDecorator;
+use Lousson\Container\Generic\GenericContainer;
 use Lousson\Record\Builtin\BuiltinRecordUtil;
+
+/** Exceptions: */
 use Lousson\Record\Error\RecordRuntimeError;
-use Lousson\Record\Generic\GenericRecordHandler;
 
 /**
  *  The builtin record factory
@@ -60,6 +70,24 @@ use Lousson\Record\Generic\GenericRecordHandler;
  */
 class BuiltinRecordFactory implements AnyRecordFactory
 {
+    /**
+     *  Create a container instance
+     *
+     *  The constructor allows the caller to provide a custom container
+     *  instance to be used as root when loading plugins - instead of the
+     *  default, empty one.
+     *
+     *  @param  AnyContainer        $container      The factory container
+     */
+    public function __construct(AnyContainer $container = null)
+    {
+        if (null === $container) {
+            $container = new GenericContainer();
+        }
+
+        $this->root = $container;
+    }
+
     /**
      *  Obtain a record parser
      *
@@ -77,13 +105,9 @@ class BuiltinRecordFactory implements AnyRecordFactory
      */
     public function getRecordParser($type)
     {
-        $normalizedType = BuiltinRecordUtil::normalizeType($type);
+        $parser = $this->getRecordEntity($type, "record.parser");
 
-        if (isset($this->parsers[$normalizedType])) {
-            $class = $this->parsers[$normalizedType];
-            $parser = new $class();
-        }
-        else {
+        if (!$parser instanceof AnyRecordParser) {
             $parser = $this->getRecordHandler($type);
         }
 
@@ -107,7 +131,12 @@ class BuiltinRecordFactory implements AnyRecordFactory
      */
     public function getRecordBuilder($type)
     {
-        $builder = $this->getRecordHandler($type);
+        $builder = $this->getRecordEntity($type, "record.builder");
+
+        if (!$builder instanceof AnyRecordBuilder) {
+            $builder = $this->getRecordHandler($type);
+        }
+
         return $builder;
     }
 
@@ -128,14 +157,10 @@ class BuiltinRecordFactory implements AnyRecordFactory
      */
     public function getRecordHandler($type)
     {
-        $normalizedType = BuiltinRecordUtil::normalizeType($type);
+        $handler = $this->getRecordEntity($type, "record.handler");
 
-        if (isset($this->handlers[$normalizedType])) {
-            $class = $this->handlers[$normalizedType];
-            $handler = new $class();
-        }
-        else {
-            $message = "Could not provide \"$normalizedType\" handler";
+        if (!$handler instanceof AnyRecordHandler) {
+            $message = "Could not provide \"$type\" handler";
             $code = RecordRuntimeError::E_NOT_SUPPORTED;
             throw new RecordRuntimeError($message, $code);
         }
@@ -157,12 +182,14 @@ class BuiltinRecordFactory implements AnyRecordFactory
      */
     public function hasRecordParser($type)
     {
-        $normalizedType = BuiltinRecordUtil::normalizeType($type);
-        $hasRecordParser =
-            isset($this->handlers[$normalizedType]) ||
-            isset($this->parsers[$normalizedType]);
+        $parser = $this->getRecordEntity($type, "record.parser");
+        $hasParser = $parser instanceof AnyRecordParser;
 
-        return $hasRecordParser;
+        if (!$hasParser) {
+            $hasParser = $this->hasRecordHandler($type);
+        }
+
+        return $hasParser;
     }
 
     /**
@@ -179,12 +206,14 @@ class BuiltinRecordFactory implements AnyRecordFactory
      */
     public function hasRecordBuilder($type)
     {
-        $normalizedType = BuiltinRecordUtil::normalizeType($type);
-        $hasRecordBuilder =
-            isset($this->handlers[$normalizedType]) ||
-            isset($this->builders[$normalizedType]);
+        $builder = $this->getRecordEntity($type, "record.builder");
+        $hasBuilder = $builder instanceof AnyRecordBuilder;
 
-        return $hasRecordBuilder;
+        if (!$hasBuilder) {
+            $hasBuilder = $this->hasRecordHandler($type);
+        }
+
+        return $hasBuilder;
     }
 
     /**
@@ -201,47 +230,136 @@ class BuiltinRecordFactory implements AnyRecordFactory
      */
     public function hasRecordHandler($type)
     {
-        $hasRecordParser = $this->hasRecordParser($type);
-        $hasRecordBuilder = $this->hasRecordBuilder($type);
-        $hasRecordHandler = $hasRecordParser && $hasRecordBuilder;
-
-        return $hasRecordHandler;
+        $handler = $this->getRecordEntity($type, "record.handler");
+        $hasHandler = $handler instanceof AnyRecordHandler;
+        return $hasHandler;
     }
 
     /**
-     *  A register of builtin parser classes
+     *  Obtain an entity instance
+     *
+     *  The getRecordEntity() method is used internally to retrieve the
+     *  object that is associated with the given $name from the container
+     *  associated with the given mime $type.
+     *
+     *  @param  string              $type       The media type
+     *  @param  string              $name       The entity name
+     *
+     *  @return object
+     *          An object is returned on success, NULL otherwise
+     *
+     *  @throws \Lousson\Record\AnyRecordException
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the $type parameter is malformed
+     */
+    protected function getRecordEntity($type, $name)
+    {
+        $type = BuiltinRecordUtil::normalizeType($type);
+        $container = $this->getRecordContainer($type);
+        $entity = $container->get($name)->orNull()->asObject();
+        return $entity;
+    }
+
+    /**
+     *  Obtain a container instance
+     *
+     *  The getRecordContainer() method is used internally to retrieve
+     *  the container associated with the given media $type. If no such
+     *  container is found, the default container is returned.
+     *
+     *  @param  string              $type       The media type
+     *
+     *  @return \Lousson\Container\AnyContainer
+     *          A container instance is returned on success
+     */
+    private function getRecordContainer($type)
+    {
+        if (!isset($this->containers)) {
+            $this->loadRecordContainers();
+        }
+
+        if (isset($this->containers[$type])) {
+            $container = $this->containers[$type];
+        }
+        else {
+            $container = $this->root;
+        }
+
+        return $container;
+    }
+
+    /**
+     *  Populate the $containers member
+     *
+     *  The loadRecordContainers() method is used internally to load the
+     *  plugins to be bound to the factory, populating the $containers for
+     *  later use via getRecordContainer().
+     */
+    private function loadRecordContainers()
+    {
+        $plugins = $this->root
+            ->get("record.plugins")
+            ->orFallback(self::$plugins)
+            ->asArray();
+
+        $plugins = array_filter(
+            $plugins, function($className) {
+                return class_exists($className) && is_subclass_of(
+                    $className, "Lousson\\Record\\AnyRecordPlugin"
+                );
+            }
+        );
+
+        foreach ($plugins as $className) try {
+
+            $child = new GenericContainerDecorator($this->root);
+            call_user_func(array($className, "bootstrap"), $child);
+
+            $typeList = $child
+                ->get("record.types")
+                ->orFallback(array())
+                ->asArray();
+
+            foreach ($typeList as $type) {
+                $this->containers[$type] = $child;
+            }
+        }
+        catch (\Exception $error) {
+            $message = "While loading $className plugin: Caught $error";
+            trigger_error($message, E_USER_WARNING);
+        }
+
+        if (empty($this->containers)) {
+            $this->containers = array();
+        }
+    }
+
+    /**
+     *  The default plugins that ship with the package
      *
      *  @var array
      */
-    private $parsers = array(
-        "application/textedit" =>
-            "Lousson\\Record\\Builtin\\BuiltinRecordParserINI",
-        "zz-application/zz-winassoc-ini" =>
-            "Lousson\\Record\\Builtin\\BuiltinRecordParserINI",
+    private static $plugins = array(
+        "Lousson\\Record\\Plugin\\INI",
+        "Lousson\\Record\\Plugin\\JSON",
+        "Lousson\\Record\\Plugin\\PHP",
+        "Lousson\\Record\\Plugin\\YAML",
     );
 
     /**
-     *  A register of builtin handler classes
+     *  The containers loaded from plugins
      *
      *  @var array
      */
-    private $handlers = array(
-        "application/json" =>
-            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerJSON",
-        "application/vnd.php.serialized" =>
-            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerPHP",
-        "text/json" =>
-            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerJSON",
-        "text/x-json" =>
-            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerJSON",
-        "text/yaml" =>
-            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerYAML",
-        "text/x-yaml" =>
-            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerYAML",
-        "application/yaml" =>
-            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerYAML",
-        "application/x-yaml" =>
-            "Lousson\\Record\\Builtin\\BuiltinRecordHandlerYAML",
-    );
+    private $containers;
+
+    /**
+     *  The root container provided at construction time
+     *
+     *  @var \Lousson\Container\AnyContainer
+     */
+    private $root;
 }
 
