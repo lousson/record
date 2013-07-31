@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\Handler\BuiltinRecordHandlerPHP class definition
+ *  Lousson\Record\Plugin\PHP class declaration
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,74 +40,46 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Builtin\Handler;
+namespace Lousson\Record\Plugin;
+
+/** Interfaces: */
+use Lousson\Container\AnyContainer;
+use Lousson\Record\AnyRecordPlugin;
 
 /** Dependencies: */
-use Lousson\Record\AnyRecordHandler;
-use Lousson\Record\Builtin\BuiltinRecordHandler;
-use Lousson\Record\Error\RecordArgumentError;
+use Lousson\Container\Generic\GenericContainer;
+use Lousson\Record\Builtin\BuiltinRecordHandlerPHP;
 
 /**
- *  A PHP record handler
+ *  A PHP record plugin
  *
- *  @since      lousson/Lousson_Record-0.2.0
+ *  The Lousson\Record\Plugin\PHP class is a plugin for e.g. the builtin
+ *  record factory that ships with the Lousson_Record package, providing a
+ *  PHP record handler - including a set of associated mime-types.
+ *
+ *  @since      lousson/Lousson_Record-2.0.0
  *  @package    org.lousson.record
  */
-class BuiltinRecordHandlerPHP
-    extends BuiltinRecordHandler
-    implements AnyRecordHandler
+class PHP implements AnyRecordPlugin
 {
     /**
-     *  Build record content
+     *  Set up and register the PHP plugin
      *
-     *  The buildRecord() method returns a byte sequence representing the
-     *  given $record in its serialized form.
+     *  The bootstrap() method is used by e.g. the BuiltinRecordFactory,
+     *  in order to load, set up and register the plugin with the factory's
+     *  plugin $container.
      *
-     *  @param  array               $data       The record's data
-     *
-     *  @return string
-     *          The serialized record is returned on success
-     *
-     *  @throws \Lousson\Record\AnyRecordException
-     *          Raised in case of malformed $data or internal errors
+     *  @param  GenericContainer    $container      The plugin container
      */
-    public function buildRecord(array $data)
+    public static function bootstrap(GenericContainer $container)
     {
-        $record = $this->normalizeInputData($data);
-        $sequence = serialize($record);
-        return $sequence;
-    }
+        $callback = function(AnyContainer $container, $name) {
+            $handler = new BuiltinRecordHandlerPHP();
+            return $handler;
+        };
 
-    /**
-     *  Parse record content
-     *
-     *  The parseRecord() method returns an array representing the given
-     *  byte $sequence in its unserialized form.
-     *
-     *  @param  string              $sequence   The record's byte sequence
-     *
-     *  @return array
-     *          The unserialized record is returned on success
-     *
-     *  @throws \Lousson\Record\AnyRecordException
-     *          Indicates a malformed $sequence or an internal error
-     */
-    public function parseRecord($sequence)
-    {
-        $setup = ini_set("track_errors", true);
-        $php_errormsg = "UNKNOWN ERROR";
-        $data = unserialize($sequence);
-        $error = $php_errormsg;
-        ini_set("track_errors", $setup);
-
-        if (!is_array($data)) {
-            $message = "Could not parse PHP record: $error";
-            $code = RecordArgumentError::E_INTERNAL_ERROR;
-            throw new RecordArgumentError($message, $code);
-        }
-
-        $record = $this->normalizeOutputData($data);
-        return $record;
+        $name = "record.handler.application/vnd.php.serialized";
+        $container->share($name, $callback);
     }
 }
 

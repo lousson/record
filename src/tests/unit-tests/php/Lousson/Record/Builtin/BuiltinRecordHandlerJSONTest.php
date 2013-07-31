@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\Handler\BuiltinRecordHandlerPHPTest definition
+ *  Lousson\Record\Builtin\BuiltinRecordHandlerJSONTest definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,20 +40,22 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Builtin\Handler;
+namespace Lousson\Record\Builtin;
 
 /** Dependencies: */
 use Lousson\Record\AbstractRecordHandlerTest;
-use Lousson\Record\Builtin\Handler\BuiltinRecordHandlerPHP;
+use Lousson\Record\Builtin\BuiltinRecordHandlerJSON;
+use ReflectionException;
+use ReflectionMethod;
 
 /**
- *  A test case for the builtin PHP record builder
+ *  A test case for the builtin JSON record builder
  *
  *  @since      lousson/Lousson_Record-0.2.0
  *  @package    org.lousson.record
  *  @link       http://www.phpunit.de/manual/current/en/
  */
-class BuiltinRecordHandlerPHPTest
+class BuiltinRecordHandlerJSONTest
     extends AbstractRecordHandlerTest
 {
     /**
@@ -68,7 +70,7 @@ class BuiltinRecordHandlerPHPTest
      */
     public function getRecordBuilder()
     {
-        $builder = new BuiltinRecordHandlerPHP();
+        $builder = new BuiltinRecordHandlerJSON();
         return $builder;
     }
 
@@ -84,7 +86,7 @@ class BuiltinRecordHandlerPHPTest
      */
     public function getRecordParser()
     {
-        $parser = new BuiltinRecordHandlerPHP();
+        $parser = new BuiltinRecordHandlerJSON();
         return $parser;
     }
 
@@ -100,12 +102,9 @@ class BuiltinRecordHandlerPHPTest
      */
     public function provideValidRecordBytes()
     {
-        $data[][] = serialize(array("foo" => "bar", "baz" => null));
-        $data[][] = serialize(array("foobar" => array(1, 2, 3, 4, 5)));
-        $data[][] = serialize(array("empty" => array()));
-        $data[][] = serialize(array("numeric" => 1234));
-        $data[][] = serialize(array("float" => 123.34));
-        $data[][] = serialize(array("foo" => array("bar" => "baz")));
+        $data[][] = '{"foo":"bar","baz":[0,1,2,3,4,5]}';
+        $data[][] = '{"foo":{"bar":"baz"}}';
+        $data[][] = '{"foobar":null}';
 
         return $data;
     }
@@ -122,17 +121,36 @@ class BuiltinRecordHandlerPHPTest
      */
     public function provideInvalidRecordBytes()
     {
-        $data[][] = "foobar";
-        $data[][] = "";
-        $data[][] = array(1, 2, 3, 4, 5);
-        $data[][] = array(null);
-        $data[][] = array("foo" => array("bar" => "baz", null));
-
-        foreach ($data as &$parameters) {
-            $parameters[0] = serialize($parameters[0]);
-        }
+        $data[][] = 'foobar';
+        $data[][] = '';
+        $data[][] = '{"foo":"bar","0 1 2":"baz"}';
 
         return $data;
+    }
+
+    /**
+     *  Test the error handling
+     *
+     *  The testCheckRecordSequence() method is a test case for scenarios
+     *  where the JSON encoding in buildRecord() fails.
+     *
+     *  @expectedException          \Lousson\Record\AnyRecordException
+     *  @test
+     *
+     *  @throws \Lousson\Record\AnyRecordException
+     *          Raised in case the test is successful
+     */
+    public function testCheckRecordSequence()
+    {
+        try {
+            $builder = $this->getRecordBuilder();
+            $method = new ReflectionMethod($builder, "checkRecordSequence");
+            $method->setAccessible(true);
+            $method->invoke($builder, false, "UNKNOWN ERROR");
+        }
+        catch (ReflectionException $error) {
+            $this->markTestSkipped();
+        }
     }
 }
 

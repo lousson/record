@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Generic\GenericRecordHandlerTest definition
+ *  Lousson\Record\AnyRecordPlugin interface declaration
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,55 +40,31 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Generic;
+namespace Lousson\Record;
 
 /** Dependencies: */
-use Lousson\Record\Builtin\BuiltinRecordHandlerPHP;
-use Lousson\Record\Builtin\BuiltinRecordHandlerPHPTest;
-use Lousson\Record\Generic\GenericRecordHandler;
+use Lousson\Container\Generic\GenericContainer;
 
 /**
- *  A test case for the builtin PHP record builder
+ *  An interface for record plugins
  *
- *  @since      lousson/Lousson_Record-0.1.0
+ *  The AnyRecordPlugin interface declares the API to be provided by
+ *  plugin loader classes, e.g. in the Lousson\Record\Plugin namespace.
+ *
+ *  @since      lousson/Lousson_Record-2.0.0
  *  @package    org.lousson.record
- *  @link       http://www.phpunit.de/manual/current/en/
  */
-class GenericRecordHandlerTest
-    extends BuiltinRecordHandlerPHPTest
+interface AnyRecordPlugin
 {
     /**
-     *  Obtain the record builder to test
+     *  Set up and register the plugin
      *
-     *  The getRecordBuilder() method returns the record builder instance
-     *  that is used in the tests or NULL, in case the test does not have
-     *  an associated builder.
+     *  The bootstrap() method is used by e.g. the BuiltinRecordFactory,
+     *  in order to load, set up and register the plugin with the context
+     *  plugin $container.
      *
-     *  @return \Lousson\Record\AnyRecordBuilder
-     *          A record builder instance is returned on success
+     *  @param  GenericContainer    $container      The plugin container
      */
-    public function getRecordBuilder()
-    {
-        $handler = new BuiltinRecordHandlerPHP();
-        $builder = new GenericRecordHandler($handler, $handler);
-        return $builder;
-    }
-
-    /**
-     *  Obtain the record parser to test
-     *
-     *  The getRecordParser() method returns the record parser instance
-     *  that is used in the tests or NULL, in case the test does not have
-     *  an associated parser.
-     *
-     *  @return \Lousson\Record\AnyRecordBuilder
-     *          A record builder instance is returned on success
-     */
-    public function getRecordParser()
-    {
-        $handler = new BuiltinRecordHandlerPHP();
-        $parser = new GenericRecordHandler($handler, $handler);
-        return $parser;
-    }
+    public static function bootstrap(GenericContainer $container);
 }
 

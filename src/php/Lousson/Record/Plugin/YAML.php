@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Generic\GenericRecordHandlerTest definition
+ *  Lousson\Record\Plugin\YAML class declaration
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,55 +40,53 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Generic;
+namespace Lousson\Record\Plugin;
+
+/** Interfaces: */
+use Lousson\Container\AnyContainer;
+use Lousson\Record\AnyRecordPlugin;
 
 /** Dependencies: */
-use Lousson\Record\Builtin\BuiltinRecordHandlerPHP;
-use Lousson\Record\Builtin\BuiltinRecordHandlerPHPTest;
-use Lousson\Record\Generic\GenericRecordHandler;
+use Lousson\Container\Generic\GenericContainer;
+use Lousson\Record\Builtin\BuiltinRecordHandlerYAML;
 
 /**
- *  A test case for the builtin PHP record builder
+ *  A YAML record plugin
  *
- *  @since      lousson/Lousson_Record-0.1.0
+ *  The Lousson\Record\Plugin\YAML class is a plugin for e.g. the builtin
+ *  record factory that ships with the Lousson_Record package, providing a
+ *  YAML record handler - including a set of associated mime-types.
+ *
+ *  @since      lousson/Lousson_Record-2.0.0
  *  @package    org.lousson.record
- *  @link       http://www.phpunit.de/manual/current/en/
  */
-class GenericRecordHandlerTest
-    extends BuiltinRecordHandlerPHPTest
+class YAML implements AnyRecordPlugin
 {
     /**
-     *  Obtain the record builder to test
+     *  Set up and register the YAML plugin
      *
-     *  The getRecordBuilder() method returns the record builder instance
-     *  that is used in the tests or NULL, in case the test does not have
-     *  an associated builder.
+     *  The bootstrap() method is used by e.g. the BuiltinRecordFactory,
+     *  in order to load, set up and register the plugin with the factory's
+     *  plugin $container.
      *
-     *  @return \Lousson\Record\AnyRecordBuilder
-     *          A record builder instance is returned on success
+     *  @param  GenericContainer    $container      The plugin container
      */
-    public function getRecordBuilder()
+    public static function bootstrap(GenericContainer $container)
     {
-        $handler = new BuiltinRecordHandlerPHP();
-        $builder = new GenericRecordHandler($handler, $handler);
-        return $builder;
-    }
+        $callback = function(AnyContainer $container, $name) {
+            $handler = new BuiltinRecordHandlerYAML();
+            return $handler;
+        };
 
-    /**
-     *  Obtain the record parser to test
-     *
-     *  The getRecordParser() method returns the record parser instance
-     *  that is used in the tests or NULL, in case the test does not have
-     *  an associated parser.
-     *
-     *  @return \Lousson\Record\AnyRecordBuilder
-     *          A record builder instance is returned on success
-     */
-    public function getRecordParser()
-    {
-        $handler = new BuiltinRecordHandlerPHP();
-        $parser = new GenericRecordHandler($handler, $handler);
-        return $parser;
+        $aliases = array(
+            "record.handler.application/yaml",
+            "record.handler.application/x-yaml",
+            "record.handler.text/yaml",
+            "record.handler.text/x-yaml",
+        );
+
+        $container->share("record.handler.yaml", $callback);
+        $container->alias("record.handler.yaml", $aliases);
     }
 }
 
