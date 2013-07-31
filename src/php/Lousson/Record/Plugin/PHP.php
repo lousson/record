@@ -78,12 +78,8 @@ class PHP implements AnyRecordPlugin
             return $handler;
         };
 
-        $types = array(
-            "application/vnd.php.serialized",
-        );
-
-        $container->share("record.handler", $callback);
-        $container->share("record.types", $types);
+        $name = "record.handler.application/vnd.php.serialized";
+        $container->share($name, $callback);
     }
 }
 

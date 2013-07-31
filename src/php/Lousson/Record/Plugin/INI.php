@@ -78,14 +78,14 @@ class INI implements AnyRecordPlugin
             return $parser;
         };
 
-        $types = array(
-            "application/textedit",
-            "text/plain",
-            "zz-application/zz-winassoc-ini",
+        $aliases = array(
+            "record.parser.application/textedit",
+            "record.parser.text/plain",
+            "record.parser.zz-application/zz-winassoc-ini",
         );
 
-        $container->share("record.parser", $callback);
-        $container->share("record.types", $types);
+        $container->share("record.parser.ini", $callback);
+        $container->alias("record.parser.ini", $aliases);
     }
 }
 

@@ -78,15 +78,15 @@ class JSON implements AnyRecordPlugin
             return $handler;
         };
 
-        $types = array(
-            "application/json",
-            "application/x-json",
-            "text/json",
-            "text/x-json",
+        $aliases = array(
+            "record.handler.application/json",
+            "record.handler.application/x-json",
+            "record.handler.text/json",
+            "record.handler.text/x-json",
         );
 
-        $container->share("record.handler", $callback);
-        $container->share("record.types", $types);
+        $container->share("record.handler.json", $callback);
+        $container->alias("record.handler.json", $aliases);
     }
 }
 

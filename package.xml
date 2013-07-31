@@ -69,7 +69,7 @@ ${contents}
       <package>
         <name>Lousson_Container</name>
         <channel>pear.lousson.org</channel>
-        <min>1.1.1</min>
+        <min>1.1.2</min>
         <max>1.999.999</max>
       </package>
       <package>

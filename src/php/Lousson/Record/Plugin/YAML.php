@@ -78,15 +78,15 @@ class YAML implements AnyRecordPlugin
             return $handler;
         };
 
-        $types = array(
-            "application/yaml",
-            "application/x-yaml",
-            "text/yaml",
-            "text/x-yaml",
+        $aliases = array(
+            "record.handler.application/yaml",
+            "record.handler.application/x-yaml",
+            "record.handler.text/yaml",
+            "record.handler.text/x-yaml",
         );
 
-        $container->share("record.handler", $callback);
-        $container->share("record.types", $types);
+        $container->share("record.handler.yaml", $callback);
+        $container->alias("record.handler.yaml", $aliases);
     }
 }
 

@@ -48,7 +48,6 @@ use Lousson\Record\AnyRecordBuilder;
 use Lousson\Record\AnyRecordHandler;
 use Lousson\Record\AnyRecordFactory;
 use Lousson\Record\AnyRecordParser;
-use Lousson\Record\AnyRecordPlugin;
 
 /** Dependencies: */
 use Lousson\Container\Generic\GenericContainerDecorator;
@@ -257,37 +256,20 @@ class BuiltinRecordFactory implements AnyRecordFactory
     protected function getRecordEntity($type, $name)
     {
         $type = BuiltinRecordUtil::normalizeType($type);
-        $container = $this->getRecordContainer($type);
-        $entity = $container->get($name)->orNull()->asObject();
-        return $entity;
-    }
+        $entity = null;
+        $index = "$name.$type";
 
-    /**
-     *  Obtain a container instance
-     *
-     *  The getRecordContainer() method is used internally to retrieve
-     *  the container associated with the given media $type. If no such
-     *  container is found, the default container is returned.
-     *
-     *  @param  string              $type       The media type
-     *
-     *  @return \Lousson\Container\AnyContainer
-     *          A container instance is returned on success
-     */
-    private function getRecordContainer($type)
-    {
         if (!isset($this->containers)) {
             $this->loadRecordContainers();
         }
 
-        if (isset($this->containers[$type])) {
-            $container = $this->containers[$type];
-        }
-        else {
-            $container = $this->root;
+        foreach ($this->containers as $container) {
+            if ($entity = $container->get($index)->orNull()->asObject()) {
+                break;
+            }
         }
 
-        return $container;
+        return $entity;
     }
 
     /**
@@ -313,27 +295,16 @@ class BuiltinRecordFactory implements AnyRecordFactory
         );
 
         foreach ($plugins as $className) try {
-
             $child = new GenericContainerDecorator($this->root);
             call_user_func(array($className, "bootstrap"), $child);
-
-            $typeList = $child
-                ->get("record.types")
-                ->orFallback(array())
-                ->asArray();
-
-            foreach ($typeList as $type) {
-                $this->containers[$type] = $child;
-            }
+            $this->containers[] = $child;
         }
         catch (\Exception $error) {
             $message = "While loading $className plugin: Caught $error";
             trigger_error($message, E_USER_WARNING);
         }
 
-        if (empty($this->containers)) {
-            $this->containers = array();
-        }
+        $this->containers[] = $this->root;
     }
 
     /**
