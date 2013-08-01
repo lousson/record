@@ -316,7 +316,6 @@ class BuiltinRecordFactory implements AnyRecordFactory
         "Lousson\\Record\\Plugin\\INI",
         "Lousson\\Record\\Plugin\\JSON",
         "Lousson\\Record\\Plugin\\PHP",
-        "Lousson\\Record\\Plugin\\YAML",
     );
 
     /**
