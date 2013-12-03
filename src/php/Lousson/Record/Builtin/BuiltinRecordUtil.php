@@ -399,7 +399,7 @@ final class BuiltinRecordUtil
      *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the item $list is invalid
      */
-    private static function normalizeList(array $list, array $i = array())
+    public static function normalizeList(array $list, array $i = array())
     {
         $normalized = array();
 
@@ -422,7 +422,7 @@ final class BuiltinRecordUtil
      *  @throws \Lousson\Record\Error\RecordArgumentError
      *          Raised in case the item $list is invalid
      */
-    private static function validateList(array $list, array $i = array())
+    public static function validateList(array $list, array $i = array())
     {
         $j = -1;
 
