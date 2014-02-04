@@ -142,6 +142,8 @@ abstract class AbstractRecordManagerTest extends AbstractRecordTest
             "The %s::loadRecord() method must return the same value ".
             "formerly saved via saveRecord()", $managerClass
         ));
+
+        unlink($location);
     }
 }
 

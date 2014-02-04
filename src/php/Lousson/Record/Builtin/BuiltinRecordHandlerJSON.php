@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\Handler\BuiltinRecordHandlerJSON definition
+ *  Lousson\Record\Builtin\BuiltinRecordHandlerJSON definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,7 +40,7 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Builtin\Handler;
+namespace Lousson\Record\Builtin;
 
 /** Dependencies: */
 use Lousson\Record\AnyRecordHandler;

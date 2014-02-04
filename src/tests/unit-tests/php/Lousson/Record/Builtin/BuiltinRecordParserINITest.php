@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\Parser\BuiltinRecordParserINITest definition
+ *  Lousson\Record\Builtin\BuiltinRecordParserINITest definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,11 +40,11 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Builtin\Parser;
+namespace Lousson\Record\Builtin;
 
 /** Dependencies: */
 use Lousson\Record\AbstractRecordHandlerTest;
-use Lousson\Record\Builtin\Parser\BuiltinRecordParserINI;
+use Lousson\Record\Builtin\BuiltinRecordParserINI;
 use ReflectionException;
 use ReflectionMethod;
 

@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\Parser\BuiltinRecordParserINI class definition
+ *  Lousson\Record\Plugin\JSON class declaration
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,69 +40,53 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Builtin\Parser;
+namespace Lousson\Record\Plugin;
+
+/** Interfaces: */
+use Lousson\Container\AnyContainer;
+use Lousson\Record\AnyRecordPlugin;
 
 /** Dependencies: */
-use Lousson\Record\AnyRecordParser;
-use Lousson\Record\Builtin\BuiltinRecordHandler;
-use Lousson\Record\Error\RecordArgumentError;
+use Lousson\Container\Generic\GenericContainer;
+use Lousson\Record\Builtin\BuiltinRecordHandlerJSON;
 
 /**
- *  An INI record parser
+ *  A JSON record plugin
  *
- *  @since      lousson/Lousson_Record-0.1.0
+ *  The Lousson\Record\Plugin\JSON class is a plugin for e.g. the builtin
+ *  record factory that ships with the Lousson_Record package, providing a
+ *  JSON record handler - including a set of associated mime-types.
+ *
+ *  @since      lousson/Lousson_Record-2.0.0
  *  @package    org.lousson.record
  */
-class BuiltinRecordParserINI
-    extends BuiltinRecordHandler
-    implements AnyRecordParser
+class JSON implements AnyRecordPlugin
 {
     /**
-     *  Parse record content
+     *  Set up and register the JSON plugin
      *
-     *  The parseRecord() method returns an array representing the given
-     *  byte $sequence in its unserialized form.
+     *  The bootstrap() method is used by e.g. the BuiltinRecordFactory,
+     *  in order to load, set up and register the plugin with the factory's
+     *  plugin $container.
      *
-     *  @param  string              $sequence   The record's byte sequence
-     *
-     *  @return array
-     *          The unserialized record is returned on success
-     *
-     *  @throws \Lousson\Record\AnyRecordException
-     *          Indicates a malformed $sequence or an internal error
+     *  @param  GenericContainer    $container      The plugin container
      */
-    final public function parseRecord($sequence)
+    public static function bootstrap(GenericContainer $container)
     {
-        $setup = ini_set("track_errors", true);
-        $php_errormsg = "UNKNOWN ERROR";
-        $data = parse_ini_string($sequence, false, INI_SCANNER_RAW);
-        $error = $php_errormsg;
-        ini_set("track_errors", $setup);
-        $this->checkRecordData($data, $error);
-        $record = $this->normalizeOutputData($data);
-        return $record;
-    }
+        $callback = function(AnyContainer $container, $name) {
+            $handler = new BuiltinRecordHandlerJSON();
+            return $handler;
+        };
 
-    /**
-     *  Verify record data parsed
-     *
-     *  The checkRecordData() method is used internally to check the data
-     *  parsed by parseRecord(). This used to be done inline, but since it
-     *  is hard to test this way, it has been moved into its own method.
-     *
-     *  @param  array               $data           The record data
-     *  @param  string              $error          The error message
-     *
-     *  @throws \Lousson\Record\AnyRecordException
-     *          Raised in case $sequence is not an array
-     */
-    private function checkRecordData($data, $error)
-    {
-        if (!is_array($data)) {
-            $message = "Could not parse INI record: $error";
-            $code = RecordArgumentError::E_INTERNAL_ERROR;
-            throw new RecordArgumentError($message, $code);
-        }
+        $aliases = array(
+            "record.handler.application/json",
+            "record.handler.application/x-json",
+            "record.handler.text/json",
+            "record.handler.text/x-json",
+        );
+
+        $container->share("record.handler.json", $callback);
+        $container->alias("record.handler.json", $aliases);
     }
 }
 

@@ -32,90 +32,31 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Record\Builtin\Handler\BuiltinRecordHandlerYAML definition
+ *  Lousson\Record\Builtin\BuiltinRecordParserINI class definition
  *
  *  @package    org.lousson.record
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
- *  @author     Attila G. Levai <sgnl19 at gmail.com>
+ *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Record\Builtin\Handler;
-
-/** Interfaces: */
-use Lousson\Record\AnyRecordHandler;
+namespace Lousson\Record\Builtin;
 
 /** Dependencies: */
+use Lousson\Record\AnyRecordParser;
 use Lousson\Record\Builtin\BuiltinRecordHandler;
-use Symfony\Component\Yaml;
-
-/** Exceptions: */
 use Lousson\Record\Error\RecordArgumentError;
-use Lousson\Record\Error\RecordRuntimeError;
 
 /**
- *  A YAML record handler
+ *  An INI record parser
  *
- *  @since      lousson/Lousson_Record-0.6.0
+ *  @since      lousson/Lousson_Record-0.1.0
  *  @package    org.lousson.record
  */
-class BuiltinRecordHandlerYAML
+class BuiltinRecordParserINI
     extends BuiltinRecordHandler
-    implements AnyRecordHandler
+    implements AnyRecordParser
 {
-    /**
-     *  Create a handler instance
-     *
-     *  The constructor allows the caller to provide YAML parser and
-     *  dumper instances to be used instead of those that would otherwise
-     *  be created at runtime.
-     *
-     *  @param  Yaml\Parser         $parser         The YAML parser
-     *  @param  Yaml\Dumper         $dumper         The YAML dumper
-     */
-    public function __construct(
-        Yaml\Parser $parser = null,
-        Yaml\Dumper $dumper = null
-    ) {
-        $this->parser = $parser;
-        $this->dumper = $dumper;
-    }
-
-    /**
-     *  Build record content
-     *
-     *  The buildRecord() method returns a byte sequence representing the
-     *  given $record in its serialized form.
-     *
-     *  @param  array               $data       The record's data
-     *
-     *  @return string
-     *          The serialized record is returned on success
-     *
-     *  @throws \Lousson\Record\AnyRecordException
-     *          Raised in case of malformed $data or internal errors
-     */
-    public function buildRecord(array $data)
-    {
-        $record = $this->normalizeInputData($data);
-
-        if (!isset($this->dumper)) {
-            $this->dumper = new Yaml\Dumper();
-        }
-
-        try {
-            $sequence = $this->dumper->dump($record);
-        }
-        catch (\Exception $error) {
-            $class = get_class($error);
-            $message = "Failed to build YAML record: Caught $class";
-            $code = RecordRuntimeError::E_UNKNOWN;
-            throw new RecordRuntimeError($message, $code, $error);
-        }
-
-        return $sequence;
-    }
-
     /**
      *  Parse record content
      *
@@ -130,38 +71,38 @@ class BuiltinRecordHandlerYAML
      *  @throws \Lousson\Record\AnyRecordException
      *          Indicates a malformed $sequence or an internal error
      */
-    public function parseRecord($sequence)
+    final public function parseRecord($sequence)
     {
-        if (!isset($this->parser)) {
-            $this->parser = new Yaml\Parser();
-        }
-
-        try {
-            $data = $this->parser->parse($sequence);
-        }
-        catch (\Exception $error) {
-            $class = get_class($error);
-            $message = "Could not parse YAML record: Caught $class";
-            $code = RecordArgumentError::E_UNKNOWN;
-            throw new RecordArgumentError($message, $code, $error);
-        }
-
+        $setup = ini_set("track_errors", true);
+        $php_errormsg = "UNKNOWN ERROR";
+        $data = parse_ini_string($sequence, false, INI_SCANNER_RAW);
+        $error = $php_errormsg;
+        ini_set("track_errors", $setup);
+        $this->checkRecordData($data, $error);
         $record = $this->normalizeOutputData($data);
         return $record;
     }
 
     /**
-     *  The YAML parser instance in use
+     *  Verify record data parsed
      *
-     *  @var \Symfony\Component\Yaml\Parser
-     */
-    private $parser;
-
-    /**
-     *  The YAML dumper instance in use
+     *  The checkRecordData() method is used internally to check the data
+     *  parsed by parseRecord(). This used to be done inline, but since it
+     *  is hard to test this way, it has been moved into its own method.
      *
-     *  @var \Symfony\Component\Yaml\Dumper
+     *  @param  array               $data           The record data
+     *  @param  string              $error          The error message
+     *
+     *  @throws \Lousson\Record\AnyRecordException
+     *          Raised in case $sequence is not an array
      */
-    private $dumper;
+    private function checkRecordData($data, $error)
+    {
+        if (!is_array($data)) {
+            $message = "Could not parse INI record: $error";
+            $code = RecordArgumentError::E_INTERNAL_ERROR;
+            throw new RecordArgumentError($message, $code);
+        }
+    }
 }
 

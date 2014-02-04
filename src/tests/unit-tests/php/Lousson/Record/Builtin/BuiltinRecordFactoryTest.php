@@ -87,10 +87,6 @@ class BuiltinRecordFactoryTest extends AbstractRecordFactoryTest
             array("application/vnd.php.serialized"),
             array("text/json"),
             array("text/x-json"),
-            array("text/yaml"),
-            array("text/x-yaml"),
-            array("application/yaml"),
-            array("application/x-yaml"),
         );
     }
 
@@ -113,10 +109,6 @@ class BuiltinRecordFactoryTest extends AbstractRecordFactoryTest
             array("text/json"),
             array("text/x-json"),
             array("zz-application/zz-winassoc-ini"),
-            array("text/yaml"),
-            array("text/x-yaml"),
-            array("application/yaml"),
-            array("application/x-yaml"),
         );
     }
 }
