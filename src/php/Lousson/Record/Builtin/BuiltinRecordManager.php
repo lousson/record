@@ -281,6 +281,8 @@ class BuiltinRecordManager implements AnyRecordManager
         "ini" => "zz-application/zz-winassoc-ini",
         "json" => "application/json",
         "yaml" => "application/yaml",
+        "phpd" => "application/vnd.php.serialized",
+        "pearrc" => "application/vnd.php.serialized",
     );
 
     /**
