@@ -199,7 +199,7 @@ class BuiltinRecordManager implements AnyRecordManager
     private function loadContent($location, &$type)
     {
         if (null === $type) {
-            $type = $this->determineMimeType($type);
+            $type = $this->determineMimeType($location);
         }
 
         $setup = ini_set("track_errors", true);
