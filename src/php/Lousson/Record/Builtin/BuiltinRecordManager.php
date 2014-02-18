@@ -282,5 +282,26 @@ class BuiltinRecordManager implements AnyRecordManager
         "json" => "application/json",
         "yaml" => "application/yaml",
     );
+
+    /**
+     *  The record factory in use
+     *
+     *  @var \Lousson\Record\AnyRecordFactory
+     */
+    private $recordFactory;
+
+    /**
+     *  The default mime type to use as fallback
+     *
+     *  @var string
+     */
+    private $defaultType;
+
+    /**
+     *  A per-instance map of file extensions and internet media types
+     *
+     *  @var array
+     */
+    private $typeMap;
 }
 
