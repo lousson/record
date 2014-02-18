@@ -77,12 +77,21 @@ class BuiltinRecordManager implements AnyRecordManager
      *  the manager to operate with (instead of the builtin one) and, also,
      *  a default media type to assume in case no media type is specified.
      *
+     *  The optional $typeMap allows the caller to provide a 1-dimensional,
+     *  associative array that maps file extensions (keys) to internet
+     *  media (or MIME) types. This map (or the internal default) is used
+     *  when a) the media type has not been given along with the file path
+     *  and b) the internal lookup (using FILEINFO_MIME_TYPE) either fails
+     *  or returns "text/plain".
+     *
      *  @param  AnyRecordFactory    $recordFactory  The record factory
      *  @param  string              $defaultType    The default record type
+     *  @param  array               $typeMap        The mime type mapping
      */
     public function __construct(
         AnyRecordFactory $recordFactory = null,
-        $defaultType = null
+        $defaultType = null,
+        array $typeMap = null
     ) {
         if (null === $recordFactory) {
             $recordFactory = new BuiltinRecordFactory();
@@ -92,8 +101,13 @@ class BuiltinRecordManager implements AnyRecordManager
             $defaultType = self::DEFAULT_TYPE;
         }
 
+        if (empty($typeMap)) {
+            $typeMap = self::$map;
+        }
+
         $this->recordFactory = $recordFactory;
         $this->defaultType = $defaultType;
+        $this->typeMap = array_map("strval", $typeMap);
     }
 
     /**
@@ -185,13 +199,7 @@ class BuiltinRecordManager implements AnyRecordManager
     private function loadContent($location, &$type)
     {
         if (null === $type) {
-            $info = finfo_open(FILEINFO_MIME_TYPE);
-            $type = @finfo_file($info, (string) $location)?: null;
-            finfo_close($info);
-        }
-
-        if ("text/plain" === $type) {
-            $type = $this->defaultType;
+            $type = $this->determineMimeType($type);
         }
 
         $setup = ini_set("track_errors", true);
@@ -236,5 +244,43 @@ class BuiltinRecordManager implements AnyRecordManager
         }
 
     }
+
+    /**
+     *  Determine a file's mime type
+     *
+     *  The determineMimeType() method is used internally to determine the
+     *  internet media type of record files when the information has not
+     *  been provided along with the file path.
+     *
+     *  @param  string              $path           The path to the file
+     *
+     *  @return string
+     *          A mime type identifier is returned on success
+     */
+    protected function determineMimeType($path)
+    {
+        $info = finfo_open(FILEINFO_MIME_TYPE);
+        $type = @finfo_file($info, (string) $location)?: null;
+        finfo_close($info);
+
+        if ("text/plain" === $type || !$type) {
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+            $extension = strtolower((string) $extension);
+            $type = @$this->typeMap[$extension]?: $this->defaultType;
+        }
+
+        return $type;
+    }
+
+    /**
+     *  A map of file extensions and internet media types
+     *
+     *  @var array
+     */
+    private static $map = array(
+        "ini" => "zz-application/zz-winassoc-ini",
+        "json" => "application/json",
+        "yaml" => "application/yaml",
+    );
 }
 
