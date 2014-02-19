@@ -96,7 +96,8 @@ class BuiltinRecordHandlerPHP
     {
         $setup = ini_set("track_errors", true);
         $php_errormsg = "UNKNOWN ERROR";
-        $data = unserialize($sequence);
+        $data = preg_replace("/^\\s*#.*\n/m", "", $sequence);
+        $data = unserialize($data);
         $error = $php_errormsg;
         ini_set("track_errors", $setup);
 
