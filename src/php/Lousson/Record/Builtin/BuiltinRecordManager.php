@@ -260,7 +260,7 @@ class BuiltinRecordManager implements AnyRecordManager
     protected function determineMimeType($path)
     {
         $info = finfo_open(FILEINFO_MIME_TYPE);
-        $type = @finfo_file($info, (string) $location)?: null;
+        $type = @finfo_file($info, (string) $path)?: null;
         finfo_close($info);
 
         if ("text/plain" === $type || !$type) {
